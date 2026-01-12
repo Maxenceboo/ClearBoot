@@ -2,7 +2,6 @@ import {
     ClearBoot, Controller, Injectable, inject, Validate,
     Get, Put, Body, Query, Param
 } from '../lib/index';
-import { z } from 'zod';
 
 @Injectable()
 class DataService {
