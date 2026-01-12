@@ -1,54 +1,99 @@
+import * as http from 'http';
 import {
-    ClearBoot, Controller, Injectable, inject, Validate,
-    Get, Put, Body, Query, Param
-} from '../lib/index';
+    ClearBoot, Controller, Get, Post, Body, Injectable, Middleware
+} from '../lib';
+import { IMiddleware } from '../lib';
+import { ClearResponse } from '../lib';
 
+// --- 1. LE SERVICE (Injection de Dépendances) ---
 @Injectable()
-class DataService {
-    getData(type: string, val: any) { return { type, value: val }; }
+class UserService {
+    private users = [
+        { id: 1, name: "Maxence" },
+        { id: 2, name: "Thomas" }
+    ];
+
+    findAll() {
+        return this.users;
+    }
+
+    create(name: string) {
+        const newUser = { id: Date.now(), name };
+        this.users.push(newUser);
+        return newUser;
+    }
 }
 
-@Controller('/items')
-class AmbiguousController {
-    readonly service = inject(DataService);
+// --- 2. MIDDLEWARE GLOBAL (Logger) ---
+@Injectable()
+class LoggerMiddleware implements IMiddleware {
+    use(req: http.IncomingMessage, res: ClearResponse, next: () => void) {
+        const start = Date.now();
+        console.log(`📡 [${req.method}] ${req.url}`);
 
-    // 1. Route Numérique (:id composé de chiffres)
-    @Get('/:id(\\d+)')
-    getById(@Param('id') id: string) {
-        return this.service.getData("NUMERIQUE", Number(id));
+        next(); // On passe à la suite
+
+        const ms = Date.now() - start;
+        console.log(`✅ [${req.method}] Terminé en ${ms}ms`);
+    }
+}
+
+// --- 3. MIDDLEWARE DE SÉCURITÉ (Auth) ---
+// Utilise la nouvelle syntaxe fluide res.status().json()
+@Injectable()
+class AuthMiddleware implements IMiddleware {
+    use(req: http.IncomingMessage, res: ClearResponse, next: () => void) {
+
+        // Simulation : Le header 'Authorization' doit valoir 'secret'
+        if (req.headers['authorization'] === 'secret') {
+            next();
+        } else {
+            // ✨ NOUVELLE SYNTAXE FLUIDE ✨
+            // Plus besoin de writeHead/end
+            res.status(401).json({
+                error: "Accès Interdit",
+                message: "Il manque le header 'Authorization: secret'"
+            });
+        }
+    }
+}
+
+// --- 4. LE CONTROLEUR ---
+@Controller('/api')
+class ApiController {
+
+    // Injection automatique du service via le constructeur
+    constructor(private userService: UserService) {}
+
+    // Route Publique
+    @Get('/users')
+    getUsers() {
+        return this.userService.findAll();
     }
 
-    // 2. Route Alphabétique (:type composé de lettres)
-    @Get('/:type([a-z]+)')
-    getByType(@Param('type') type: string) {
-        return this.service.getData("TEXTE", type.toUpperCase());
+    // Route avec Body Parser
+    @Post('/users')
+    addUser(@Body() body: any) {
+        if (!body.name) {
+            // On peut aussi renvoyer une erreur brute si besoin
+            throw new Error("Le nom est obligatoire");
+        }
+        return this.userService.create(body.name);
     }
 
-    // 3. Mélange Complet
-    // URL: PUT /items/42/update?silent=true
-    @Put('/:id/update')
-    updateComplex(
-        @Param('id') id: string,     // @Dyn('id')
-        @Query('silent') s: string,  // @Query('silent')
-        @Body() data: any            // @Body (tout le json)
-    ) {
+    // Route Protégée par Middleware
+    @Get('/admin')
+    @Middleware(AuthMiddleware) // 🔒 Sécurité stricte via Classe
+    getAdminData() {
         return {
-            status: "Updated",
-            target: id,
-            silentMode: s === 'true',
-            payload: data
+            secret_data: "Code Nucléaire: 123456",
+            status: "Super Admin"
         };
     }
-
-    // 4. Test de priorité (Order)
-    // Même si 'z' match la regex [a-z]+ ci-dessus,
-    // cette route statique passe avant car l'ordre des regex est > 0 implicitement si définies après,
-    // ou on peut jouer avec le paramètre order.
-    // Ici, '/items/special' est statique, donc matchPath le prendra avant les regex.
-    @Get('/special')
-    getSpecial() {
-        return { type: "SPECIAL", val: "Route Statique" };
-    }
 }
 
-ClearBoot.create({ port: 5000 });
+// --- 5. DÉMARRAGE ---
+ClearBoot.create({
+    port: 5000,
+    globalMiddlewares: [LoggerMiddleware] // Le logger s'applique à tout
+});

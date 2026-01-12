@@ -1,15 +1,30 @@
 import * as http from 'http';
+import { globalContainer } from '../di/container';
 import { ParamType } from '../common/types';
 import { matchPath } from '../router/path-matcher';
 import { parseBody, parseQueryParams, isJson } from '../http/request-utils';
 import { ControllerMetadata } from './metadata-scanner';
+import { MiddlewareClass, IMiddleware } from '../common/interfaces';
+import { extendResponse, ClearResponse } from '../http/response';
 
 export class RequestHandler {
-    static async handle(req: http.IncomingMessage, res: http.ServerResponse, controllers: ControllerMetadata[]) {
-        // Headers CORS et JSON
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        if (req.method === 'OPTIONS') { res.writeHead(204); res.end(); return; }
+    static async handle(
+        req: http.IncomingMessage,
+        res: http.ServerResponse,
+        controllers: ControllerMetadata[],
+        globalMiddlewares: MiddlewareClass[] = []
+    ) {
+        // TRANSFORMATION IMMÉDIATE DU 'RES'
+        const response = extendResponse(res);
+
+        response.setHeader('Content-Type', 'application/json');
+        response.setHeader('Access-Control-Allow-Origin', '*');
+
+        // Utilisation de la nouvelle syntaxe pour le preflight CORS
+        if (req.method === 'OPTIONS') {
+            response.status(204).send('');
+            return;
+        }
 
         const parsedUrl = new URL(req.url || '/', `http://${req.headers.host}`);
         const urlPath = parsedUrl.pathname.replace(/\/$/, '') || '/';
@@ -17,63 +32,88 @@ export class RequestHandler {
 
         for (const ctrl of controllers) {
             for (const route of ctrl.routes) {
-
-                // Matching
                 const routeParams = matchPath(route.fullPath, urlPath);
 
                 if (routeParams && route.method === method) {
                     try {
-                        // Extraction
-                        const queryParams = parseQueryParams(parsedUrl);
-                        const bodyParams = (['POST', 'PUT', 'PATCH'].includes(method || '')) ? await parseBody(req) : {};
+                        const ctrlMiddlewares = Reflect.getMetadata('ctrl_middlewares', ctrl.instance.constructor) || [];
+                        const routeMiddlewares = Reflect.getMetadata('route_middlewares', ctrl.instance, route.handlerName) || [];
+                        const allMiddlewares = [...globalMiddlewares, ...ctrlMiddlewares, ...routeMiddlewares];
 
-                        // Construction Arguments
-                        let args: any[] = [];
-                        if (route.paramsMeta.length > 0) {
-                            args = new Array(route.paramsMeta.length);
-                            route.paramsMeta.forEach((p: any) => {
-                                let val: any = null;
-                                if (p.type === ParamType.REQ) val = req;
-                                else if (p.type === ParamType.RES) val = res;
-                                else if (p.type === ParamType.BODY) val = bodyParams;
-                                else if (p.type === ParamType.QUERY) val = queryParams;
-                                else if (p.type === ParamType.PARAM) val = routeParams;
+                        const executeHandler = async () => {
+                            const queryParams = parseQueryParams(parsedUrl);
+                            const bodyParams = (['POST', 'PUT', 'PATCH'].includes(method || '')) ? await parseBody(req) : {};
 
-                                if (p.key && val && typeof val === 'object') args[p.index] = val[p.key];
-                                else args[p.index] = val;
-                            });
-                        } else {
-                            args = [{ ...queryParams, ...bodyParams, ...routeParams }];
-                        }
+                            let args: any[] = [];
+                            if (route.paramsMeta.length > 0) {
+                                args = new Array(route.paramsMeta.length);
+                                route.paramsMeta.forEach((p: any) => {
+                                    let val: any = null;
+                                    if (p.type === ParamType.REQ) val = req;
+                                    else if (p.type === ParamType.RES) val = response; // 👈 Injection du super response
+                                    else if (p.type === ParamType.BODY) val = bodyParams;
+                                    else if (p.type === ParamType.QUERY) val = queryParams;
+                                    else if (p.type === ParamType.PARAM) val = routeParams;
 
-                        // Exécution
-                        const result = await ctrl.instance[route.handlerName](...args);
+                                    if (p.key && val && typeof val === 'object') args[p.index] = val[p.key];
+                                    else args[p.index] = val;
+                                });
+                            } else {
+                                args = [{ ...queryParams, ...bodyParams, ...routeParams }];
+                            }
 
-                        // Réponse
-                        if (res.writableEnded) return;
+                            const result = await ctrl.instance[route.handlerName](...args);
 
-                        const customHeaders = Reflect.getMetadata('response_headers', ctrl.instance, route.handlerName) || {};
-                        Object.keys(customHeaders).forEach(key => res.setHeader(key, customHeaders[key]));
+                            if (response.writableEnded) return;
 
-                        const statusCode = Reflect.getMetadata('http_code', ctrl.instance, route.handlerName) || 200;
-                        res.writeHead(statusCode);
+                            const customHeaders = Reflect.getMetadata('response_headers', ctrl.instance, route.handlerName) || {};
+                            Object.keys(customHeaders).forEach(key => response.setHeader(key, customHeaders[key]));
 
-                        if (typeof result === 'object') res.end(JSON.stringify(result));
-                        else res.end(String(result));
+                            const statusCode = Reflect.getMetadata('http_code', ctrl.instance, route.handlerName) || 200;
+
+                            // 👇 UTILISATION DE LA NOUVELLE SYNTAXE POUR LA RÉPONSE FINALE
+                            if (typeof result === 'object') response.status(statusCode).json(result);
+                            else response.status(statusCode).send(String(result));
+                        };
+
+                        let index = -1;
+                        const dispatch = async (i: number) => {
+                            if (i <= index) return;
+                            index = i;
+
+                            if (i === allMiddlewares.length) {
+                                await executeHandler();
+                                return;
+                            }
+
+                            const MiddlewareClass = allMiddlewares[i];
+                            globalContainer.register(MiddlewareClass, new MiddlewareClass());
+                            const instance = globalContainer.resolve(MiddlewareClass) as IMiddleware;
+
+                            try {
+                                // 👇 PASSAGE DU SUPER RESPONSE AU MIDDLEWARE
+                                await instance.use(req, response, () => dispatch(i + 1));
+                            } catch (err) {
+                                throw err;
+                            }
+                        };
+
+                        await dispatch(0);
                         return;
 
                     } catch (e: any) {
-                        if (!res.writableEnded) {
-                            res.writeHead(400);
-                            const msg = isJson(e.message) ? e.message : JSON.stringify({ error: e.message });
-                            res.end(msg);
+                        if (!response.writableEnded) {
+                            // 👇 GESTION ERREUR AVEC NOUVELLE SYNTAXE
+                            const status = e.status || 500;
+                            const msg = isJson(e.message) ? JSON.parse(e.message) : { error: e.message };
+                            response.status(status).json(msg);
                         }
                         return;
                     }
                 }
             }
         }
-        res.writeHead(404);
-        res.end(JSON.stringify({ error: "Route not found" }));
+        // 404 Not Found
+        response.status(404).json({ error: "Route not found" });
     }
 }
