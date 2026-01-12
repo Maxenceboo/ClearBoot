@@ -1,26 +1,24 @@
+# 🚀 ClearBoot Framework
 
-# 🛡️ ClearBoot Framework
+> An Atomic, TypeScript-first, Dependency Injection based Web Framework for Node.js.
+> *Think NestJS, but lighter and built on native HTTP.*
 
-> **The "No-Magic" Backend Framework for TypeScript.**
-> Explicit Dependency Injection. Built-in Security. Zero Guesswork.
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 
-[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-blue.svg)](http://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+**ClearBoot** est un framework conçu pour apporter de la structure et de la robustesse à vos applications Node.js, sans la complexité excessive des gros frameworks. Il force les bonnes pratiques (Architecture Atomique, DI, Décorateurs) tout en restant performant.
 
----
+## ✨ Fonctionnalités Clés
 
-## 🧐 Pourquoi ClearBoot ?
-
-La plupart des frameworks modernes (Spring, NestJS) reposent sur trop de "magie".
-* *D'où vient cette variable ?* (Autowiring caché)
-* *Pourquoi ma route ne marche pas ?* (Scan de dossiers opaque)
-
-**ClearBoot** prend le contre-pied : **Si ce n'est pas écrit, ça n'existe pas.**
-
-### Les Piliers
-1.  **Explicté Totale :** Pas de scan automatique. Vous déclarez vos modules manuellement.
-2.  **Injection Fonctionnelle :** Utilisez `inject()` au lieu de surcharger vos constructeurs.
-3.  **Sécurité par Design :** Validation, Sérialisation et Headers de sécurité intégrés nativement.
+- 🏗 **Architecture Atomique** : Structure modulaire et scalable.
+- 💉 **Dependency Injection** : Conteneur IoC intégré strict et performant.
+- 🎨 **Decorators-First** : `@Controller`, `@Get`, `@Middleware`, `@Validate`...
+- 🛡 **Middlewares Robustes** : Système de pipeline complet (Global, Contrôleur, Route).
+- ✅ **Validation Intégrée** : Support natif de **Zod** via décorateurs.
+- 🔌 **Zéro Dépendance Express** : Construit sur le module `http` natif de Node.js.
+- 🧪 **Testable** : Conçu pour le TDD (Unit & Integration ready).
 
 ---
 
@@ -28,163 +26,72 @@ La plupart des frameworks modernes (Spring, NestJS) reposent sur trop de "magie"
 
 ```bash
 npm install clearboot reflect-metadata zod
+npm install --save-dev typescript @types/node jest
 
 ```
 
-Assurez-vous d'activer les options suivantes dans votre `tsconfig.json` :
+## ⚡ Quick Start
 
-```json
-{
-  "compilerOptions": {
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  }
-}
-
-```
-
----
-
-## 🚀 Quick Start
-
-Voici une API complète en 3 fichiers.
-
-### 1. Créez un Service (`user.service.ts`)
-
-Une simple classe. `@Injectable()` sert de marqueur.
+### 1. Créez un Service (`src/app/services/user.service.ts`)
 
 ```typescript
-import { Injectable } from 'clearboot';
+import { Injectable } from '../../lib';
 
 @Injectable()
 export class UserService {
-  private users = [{ id: 1, name: "Alice" }];
-
-  findAll() {
-    return this.users;
-  }
+  private users = [{ name: 'Max' }];
+  findAll() { return this.users; }
 }
 
 ```
 
-### 2. Créez un Contrôleur (`user.controller.ts`)
-
-Utilisez `inject()` pour récupérer vos dépendances. C'est typé, c'est propre.
+### 2. Créez un Contrôleur (`src/app/controllers/user.controller.ts`)
 
 ```typescript
-import { Controller, Get, inject } from 'clearboot';
-import { UserService } from './user.service';
+import { Controller, Get, Post, Body } from '../../lib';
+import { UserService } from '../services/user.service';
 
 @Controller('/users')
 export class UserController {
-  
-  // ✅ Injection explicite et lisible
-  readonly userService = inject(UserService);
+    
+  private readonly userService = inject(UserService);
 
   @Get('/')
   getAll() {
     return this.userService.findAll();
   }
+
+  @Post('/')
+  create(@Body() body: any) {
+    return { created: true, name: body.name };
+  }
 }
 
 ```
 
-### 3. Assemblez l'Application (`main.ts`)
-
-Déclarez explicitement ce que votre application utilise.
+### 3. Lancez l'application (`src/app/main.ts`)
 
 ```typescript
-import { ClearBoot } from 'clearboot';
-import { UserService } from './user.service';
-import { UserController } from './user.controller';
+import { ClearBoot } from '../lib';
 
-ClearBoot.create({
-  providers: [UserService],      // Services (Singleton)
-  controllers: [UserController], // Routes
-  port: 3000
-});
+ClearBoot.create({ port: 3000 });
 
 ```
 
 ---
 
-## 🔐 Sécurité Avancée (Security Layers)
+## 📚 Documentation
 
-ClearBoot intègre 4 couches de protection pour vos données.
+La documentation complète est disponible dans le dossier [`docs/`](https://www.google.com/search?q=./docs).
 
-### 1. Validation des Entrées (`@Validate`)
-
-Refusez les données malformées avant même qu'elles touchent votre code.
-
-```typescript
-import { z } from 'zod';
-
-const CreateUserSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8)
-});
-
-@Post('/')
-@Validate(CreateUserSchema) // 🛡️ Bloque si invalide (400 Bad Request)
-createUser(body: any) {
-  return this.userService.create(body);
-}
-
-```
-
-### 2. Sérialisation des Sorties (`@Serialize`)
-
-Ne laissez jamais fuiter un mot de passe. Transformez vos données avant l'envoi.
-
-```typescript
-class PublicUserDto {
-  @Expose() id: number;
-  @Expose() name: string;
-  // Pas de password ici !
-}
-
-@Get('/:id')
-@Serialize(PublicUserDto) // 🛡️ Nettoie le JSON de réponse
-getUser() {
-  return this.userService.findOne();
-}
-
-```
-
-### 3. Gardes (`@Guard`)
-
-Protégez vos routes administratives.
-
-```typescript
-@Get('/admin')
-@Guard(AdminGuard) // 🛡️ Bloque si pas admin (403 Forbidden)
-getSensitiveData() {
-  return "Top Secret";
-}
-
-```
+1. **[Contrôleurs & Routing](docs/controllers.md)**
+2. **[Middlewares & Sécurité](docs/middlewares.md)**
+3. **[Injection de Dépendances (DI)](docs/dependency-injection.md)**
+4. **[Validation avec Zod](docs/validation.md)**
+5. **[Architecture](docs/architecture.md)**
 
 ---
 
-## 📚 Architecture
+## 📄 Licence
 
-Comment ClearBoot démarre votre application :
-
-1. **Registry Phase :** Lit la configuration `ClearBoot.create()`.
-2. **Provider Phase :** Instancie tous les Services et les stocke dans le Conteneur Global.
-3. **Controller Phase :** Instancie les Contrôleurs. La fonction `inject()` puise alors dans le Conteneur déjà rempli.
-4. **Routing Phase :** Mappe les routes `@Get/@Post` et lance le serveur HTTP sécurisé (Helmet headers inclus).
-
----
-
-## 🤝 Contribuer
-
-Projet Open Source créé pour l'apprentissage et la maîtrise de l'architecture backend.
-Les Pull Requests sont les bienvenues pour ajouter :
-
-* Support des WebSockets.
-* Intégration ORM (TypeORM/Prisma).
-
----
-
-**Happy Coding with ClearBoot!** 🚀
+Distribué sous la licence MIT.

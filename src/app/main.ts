@@ -1,99 +1,55 @@
-import * as http from 'http';
 import {
-    ClearBoot, Controller, Get, Post, Body, Injectable, Middleware
-} from '../lib';
-import { IMiddleware } from '../lib';
-import { ClearResponse } from '../lib';
+    ClearBoot, Controller, Get, Post, Body, Injectable, inject, Middleware
+} from '../lib/index';
+import { IMiddleware } from '../lib/common/interfaces';
+import { ClearResponse } from '../lib/http/response';
 
-// --- 1. LE SERVICE (Injection de Dépendances) ---
+// --- SERVICE ---
 @Injectable()
 class UserService {
-    private users = [
-        { id: 1, name: "Maxence" },
-        { id: 2, name: "Thomas" }
-    ];
+    private db = ["Max", "Tom"];
 
-    findAll() {
-        return this.users;
-    }
-
-    create(name: string) {
-        const newUser = { id: Date.now(), name };
-        this.users.push(newUser);
-        return newUser;
-    }
+    findAll() { return this.db; }
+    add(name: string) { this.db.push(name); }
 }
 
-// --- 2. MIDDLEWARE GLOBAL (Logger) ---
-@Injectable()
-class LoggerMiddleware implements IMiddleware {
-    use(req: http.IncomingMessage, res: ClearResponse, next: () => void) {
-        const start = Date.now();
-        console.log(`📡 [${req.method}] ${req.url}`);
-
-        next(); // On passe à la suite
-
-        const ms = Date.now() - start;
-        console.log(`✅ [${req.method}] Terminé en ${ms}ms`);
-    }
-}
-
-// --- 3. MIDDLEWARE DE SÉCURITÉ (Auth) ---
-// Utilise la nouvelle syntaxe fluide res.status().json()
+// --- MIDDLEWARE AVEC INJECTION ---
 @Injectable()
 class AuthMiddleware implements IMiddleware {
-    use(req: http.IncomingMessage, res: ClearResponse, next: () => void) {
+    // 🔥 Injection dans un Middleware !
+    private readonly userService = inject(UserService);
 
-        // Simulation : Le header 'Authorization' doit valoir 'secret'
-        if (req.headers['authorization'] === 'secret') {
-            next();
-        } else {
-            // ✨ NOUVELLE SYNTAXE FLUIDE ✨
-            // Plus besoin de writeHead/end
-            res.status(401).json({
-                error: "Accès Interdit",
-                message: "Il manque le header 'Authorization: secret'"
-            });
-        }
+    use(req: any, res: ClearResponse, next: () => void) {
+        console.log("Users en base:", this.userService.findAll().length);
+        if (req.headers.auth === 'secret') next();
+        else res.status(401).json({ error: "No Auth" });
     }
 }
 
-// --- 4. LE CONTROLEUR ---
-@Controller('/api')
-class ApiController {
+// --- CONTROLEUR ---
+@Controller('/users')
+class UserController {
 
-    // Injection automatique du service via le constructeur
-    constructor(private userService: UserService) {}
+    // ✨ C'est ici que tu voulais ton changement ✨
+    // Plus de constructeur, plus de @InjectProperty
+    private readonly userService = inject(UserService);
 
-    // Route Publique
-    @Get('/users')
-    getUsers() {
+    @Get('/')
+    getAll() {
         return this.userService.findAll();
     }
 
-    // Route avec Body Parser
-    @Post('/users')
-    addUser(@Body() body: any) {
-        if (!body.name) {
-            // On peut aussi renvoyer une erreur brute si besoin
-            throw new Error("Le nom est obligatoire");
-        }
-        return this.userService.create(body.name);
+    @Post('/')
+    create(@Body() body: any) {
+        this.userService.add(body.name);
+        return { success: true };
     }
 
-    // Route Protégée par Middleware
     @Get('/admin')
-    @Middleware(AuthMiddleware) // 🔒 Sécurité stricte via Classe
-    getAdminData() {
-        return {
-            secret_data: "Code Nucléaire: 123456",
-            status: "Super Admin"
-        };
+    @Middleware(AuthMiddleware)
+    admin() {
+        return { mode: 'admin' };
     }
 }
 
-// --- 5. DÉMARRAGE ---
-ClearBoot.create({
-    port: 5000,
-    globalMiddlewares: [LoggerMiddleware] // Le logger s'applique à tout
-});
+ClearBoot.create({ port: 5000 });
