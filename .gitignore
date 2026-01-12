@@ -1,0 +1,64 @@
+# --- Dependencies ---
+node_modules/
+package-lock.json # Optionnel : Certains préfèrent le garder, d'autres non (je conseille de le GARDER en équipe, mais si tu veux ignorer : décommente)
+
+# --- Build Output ---
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# --- Logs ---
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# --- Environment Variables (SECURITY) ---
+# Ne jamais commiter tes clés API ou secrets !
+.env
+.env.test
+.env.production
+.env.local
+
+# --- Testing & Coverage ---
+coverage/
+__snapshots__/
+*.test.js.snap
+
+# --- IDE & Editors ---
+# JetBrains (IntelliJ, WebStorm, etc.)
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Vim / Emacs / Sublime
+*.swp
+*~
+.project
+.settings
+.classpath
+
+# --- OS Specific ---
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# --- Misc ---
+.npm
+tmp/
+temp/
