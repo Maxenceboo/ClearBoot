@@ -1,11 +1,20 @@
 {
   "name": "clearboot",
   "version": "2.0.0",
+  "description": "Atomic, TypeScript-first, Dependency Injection based Web Framework for Node.js",
+  "main": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
   "scripts": {
-    "start": "ts-node src/app/main.ts",
+    "build": "tsc",
+    "dev": "ts-node src/app/main.ts",
+    "start": "node dist/app/main.js",
     "test": "jest",
-    "test:cov": "jest --coverage"
+    "test:cov": "jest --coverage",
+    "test:watch": "jest --watch"
   },
+  "keywords": ["framework", "typescript", "dependency-injection", "decorators", "http"],
+  "author": "Max",
+  "license": "MIT",
   "dependencies": {
     "class-transformer": "^0.5.1",
     "dotenv": "^16.3.1",
