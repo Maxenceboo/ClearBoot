@@ -1,18 +1,26 @@
-import { isJson } from '../../src/lib/http/request-utils';
+import { parseQueryParams } from '../../src/lib/http/request-utils';
 
 describe('UNIT - Helper Functions', () => {
-    test('isJson should return true for valid JSON', () => {
-        expect(isJson('{"key": "value"}')).toBe(true);
-        expect(isJson('[]')).toBe(true);
-        expect(isJson('null')).toBe(true);
-        expect(isJson('123')).toBe(true);
-        expect(isJson('"string"')).toBe(true);
+    test('parseQueryParams should parse single param', () => {
+        const params = parseQueryParams(new URL('http://localhost?name=john'));
+        expect(params.name).toBe('john');
     });
 
-    test('isJson should return false for invalid JSON', () => {
-        expect(isJson('{invalid}')).toBe(false);
-        expect(isJson('not json')).toBe(false);
-        expect(isJson('{key: value}')).toBe(false);
-        expect(isJson('')).toBe(false);
+    test('parseQueryParams should parse multiple params', () => {
+        const params = parseQueryParams(new URL('http://localhost?name=john&age=30'));
+        expect(params.name).toBe('john');
+        expect(params.age).toBe('30');
+    });
+
+    test('parseQueryParams should handle array params', () => {
+        const params = parseQueryParams(new URL('http://localhost?tags=a&tags=b'));
+        expect(Array.isArray(params.tags)).toBe(true);
+        expect(params.tags).toContain('a');
+        expect(params.tags).toContain('b');
+    });
+
+    test('parseQueryParams should return empty object for no query', () => {
+        const params = parseQueryParams(new URL('http://localhost'));
+        expect(Object.keys(params).length).toBe(0);
     });
 });
