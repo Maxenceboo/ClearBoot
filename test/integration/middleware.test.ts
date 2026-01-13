@@ -47,9 +47,9 @@ class MiddlewareController {
 describe('INTEGRATION - Middlewares System', () => {
     let server: http.Server;
 
-    beforeAll(() => {
+    beforeAll(async () => {
         // On démarre une instance fraîche de l'app
-        server = ClearBoot.create({
+        server = await ClearBoot.create({
             port: 0, // Port aléatoire
             globalMiddlewares: [GlobalTagMiddleware]
         });

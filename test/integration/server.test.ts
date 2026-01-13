@@ -39,9 +39,9 @@ class TestController {
 describe('INTEGRATION - ClearBoot Server', () => {
     let app: any;
 
-    beforeAll(() => {
+    beforeAll(async () => {
         // On crée l'app SANS écouter le port (mode test)
-        app = ClearBoot.create({});
+        app = await ClearBoot.create({});
     });
 
     test('GET /test/hello -> 200 OK', async () => {

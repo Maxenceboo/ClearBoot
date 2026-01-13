@@ -12,8 +12,8 @@ describe('INTEGRATION - CORS Security', () => {
     let server: http.Server;
     const ALLOWED_ORIGIN = 'http://trusted-site.com';
 
-    beforeAll(() => {
-        server = ClearBoot.create({
+        beforeAll(async () => {
+        server = await ClearBoot.create({
             port: 0,
             cors: {
                 origin: [ALLOWED_ORIGIN], // Seul ce site est autorisé

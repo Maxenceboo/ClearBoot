@@ -58,5 +58,13 @@ ClearBoot.create({
         origin: '*',
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
         credentials: true
+    },
+
+    // 🔄 Lifecycle Hook - S'exécute AVANT le démarrage du serveur
+    // Utile pour: connexion DB, vérification de santé, chargement de config, etc.
+    onModuleInit: async () => {
+        console.log('🔧 Initialisation du module...');
+        // Exemple: await db.connect();
+        console.log('✅ Module initialisé');
     }
 });

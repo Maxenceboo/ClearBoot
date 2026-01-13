@@ -92,6 +92,7 @@ La documentation complète et détaillée est disponible dans [`docs/`](docs/REA
 - 🎯 **[Feature Decorators](docs/feature-decorators.md)** - @Validate, @Serialize
 - 💉 **[Dependency Injection](docs/dependency-injection-advanced.md)** - Services et patterns
 - 🏗️ **[Architectural Patterns](docs/patterns.md)** - MVC, Service Layer, Repository Pattern
+- 🔄 **[Lifecycle & Database](docs/lifecycle.md)** - onModuleInit, Graceful Shutdown, ORM Integration
 - 🧪 **[Testing Guide](docs/testing.md)** - Unit & Integration tests
 - 📖 **[API Reference](docs/api-reference.md)** - Complete decorator & API reference
 
@@ -130,13 +131,13 @@ Distribué sous la licence MIT.
 * [x] **CORS** : Support de la configuration CORS intégrée.
 * [x] **Logger** : Middleware de logging des requêtes.
 
-## 🏗️ Phase 2 : Cycle de Vie & Base de Données (EN COURS)
+## 🏗️ Phase 2 : Cycle de Vie & Base de Données (TERMINÉE ✅)
 
 *L'objectif est de gérer proprement les connexions externes (DB).*
 
-* [ ] **Lifecycle Hooks** : Ajouter une méthode `onModuleInit()` dans `ClearBoot` pour permettre de se connecter à la DB *avant* d'écouter le port.
-* [ ] **Graceful Shutdown** : Gérer les signaux `SIGTERM` et `SIGINT` (Ctrl+C) pour fermer la connexion DB et le serveur proprement sans corrompre de données.
-* [ ] **Intégration ORM** : Créer un exemple ou un module pour intégrer proprement **TypeORM** ou **Prisma** avec notre système d'injection `inject()`.
+* [x] **Lifecycle Hooks** : Ajouter une méthode `onModuleInit()` dans `ClearBoot.create()` pour se connecter à la DB *avant* d'écouter le port.
+* [x] **Graceful Shutdown** : Gérer les signaux `SIGTERM` et `SIGINT` (Ctrl+C) pour fermer la connexion DB et le serveur proprement.
+* [x] **Intégration ORM** : Exemples avec **TypeORM**, **Prisma**, et **MongoDB** native driver.
 
 ## 📦 Phase 3 : Fonctionnalités HTTP Avancées
 

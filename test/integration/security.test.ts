@@ -14,9 +14,9 @@ class SecurityController {
 describe('INTEGRATION - Security & Body Parser', () => {
     let server: http.Server;
 
-    beforeAll(() => {
+        beforeAll(async () => {
         // On démarre ClearBoot avec ce contrôleur
-        server = ClearBoot.create({ port: 0 });
+            server = await ClearBoot.create({ port: 0 });
     });
 
     afterAll((done) => {

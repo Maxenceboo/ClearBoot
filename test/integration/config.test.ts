@@ -17,10 +17,10 @@ describe('INTEGRATION - Configuration & Env', () => {
         process.env = originalEnv; // Restauration
     });
 
-    test('Devrait utiliser le PORT défini dans process.env', () => {
+    test('Devrait utiliser le PORT défini dans process.env', async () => {
         process.env.PORT = '8888'; // On simule le .env
 
-        server = ClearBoot.create({
+        server = await ClearBoot.create({
             // On ne passe PAS de port ici, ça doit lire l'env
         });
 
@@ -28,10 +28,10 @@ describe('INTEGRATION - Configuration & Env', () => {
         expect(address.port).toBe(8888);
     });
 
-    test('La config explicite doit être prioritaire sur le .env', () => {
+    test('La config explicite doit être prioritaire sur le .env', async () => {
         process.env.PORT = '8888';
 
-        server = ClearBoot.create({
+        server = await ClearBoot.create({
             port: 9999 // Prioritaire
         });
 
