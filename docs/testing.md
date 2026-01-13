@@ -127,9 +127,8 @@ import request from 'supertest';
 describe('User API', () => {
     let server: any;
 
-    beforeEach(async () => {
-        const app = new Application();
-        app.scan(UserController);
+    beforeEach(() => {
+        const app = ClearBoot.create();
         server = app.getServer();
     });
 
@@ -187,9 +186,8 @@ describe('User API', () => {
 describe('Search API', () => {
     let server: any;
 
-    beforeEach(async () => {
-        const app = new Application();
-        app.scan(SearchController);
+    beforeEach(() => {
+        const app = ClearBoot.create();
         server = app.getServer();
     });
 
@@ -231,9 +229,8 @@ describe('Search API', () => {
 describe('Serialization', () => {
     let server: any;
 
-    beforeEach(async () => {
-        const app = new Application();
-        app.scan(UserController);
+    beforeEach(() => {
+        const app = ClearBoot.create();
         server = app.getServer();
     });
 
@@ -322,11 +319,13 @@ describe('Middleware Chain', () => {
     let server: any;
 
     beforeEach(async () => {
-        const app = new Application();
-        app.use(AuthMiddleware);
-        app.use(LoggerMiddleware);
-        app.use(RateLimitMiddleware);
-        app.scan(ProtectedController);
+        const app = ClearBoot.create({
+            globalMiddlewares: [
+                AuthMiddleware,
+                LoggerMiddleware,
+                RateLimitMiddleware
+            ]
+        });
         server = app.getServer();
     });
 
@@ -641,8 +640,7 @@ describe('UserController', () => {
 
         globalContainer.register(UserService, () => mockUserService as any);
 
-        const app = new Application();
-        app.scan(UserController);
+        const app = ClearBoot.create();
         server = app.getServer();
     });
 

@@ -229,12 +229,10 @@ test/
 ### Minimal Setup
 ```typescript
 // main.ts
-import { Application } from 'clearboot';
+import { ClearBoot } from 'clearboot';
 import { UserController } from './controllers/user.controller';
 
-const app = new Application();
-app.scan(UserController);
-app.listen(3000);
+ClearBoot.create();
 ```
 
 ---
@@ -330,7 +328,7 @@ describe('User API', () => {
 ## Troubleshooting
 
 ### Routes not working
-- Verify controller is registered: `app.scan(YourController)`
+- Verify ClearBoot.create() is called
 - Check route path and HTTP verb match your request
 - Use browser devtools to inspect actual requests
 

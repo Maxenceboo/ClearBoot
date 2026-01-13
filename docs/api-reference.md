@@ -376,52 +376,45 @@ class ApiHeaderProvider implements IHeaderProvider {
 
 ## Core Classes
 
-### Application
-Main application class for setting up and running the server.
+### ClearBoot
+Main initialization function for setting up and running the server.
 
-#### Constructor
+#### Function Signature
 ```typescript
-const app = new Application();
+ClearBoot.create(config?: ApplicationConfig): Application
 ```
 
-#### Methods
-
-##### `scan(controllerClass: class)`
-Register a controller.
+#### Configuration
 
 ```typescript
-app.scan(UserController);
+interface ApplicationConfig {
+    globalMiddlewares?: (Function | { handle: Function })[];
+    cors?: CorsOptions;
+    port?: number;
+    bodyLimit?: string;
+}
 ```
 
----
-
-##### `use(middlewareClass: class)`
-Register global middleware.
+Initialize with configuration:
 
 ```typescript
-app.use(LoggerMiddleware);
-app.use(AuthMiddleware);
-```
-
-Middleware is applied in registration order.
-
----
-
-##### `listen(port: number, callback?: Function)`
-Start the HTTP server.
-
-```typescript
-app.listen(3000, () => {
-    console.log('Server running on port 3000');
+const app = ClearBoot.create({
+    globalMiddlewares: [LoggerMiddleware, AuthMiddleware],
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        credentials: true
+    }
 });
-
-app.listen(process.env.PORT || 3000);
 ```
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `port` | number | Yes | Port number to listen on |
-| `callback` | Function | No | Called when server starts |
+**globalMiddlewares**: Array of middleware classes applied in order to all requests.
+
+**cors**: CORS configuration options. Pass an object to enable, or omit to disable.
+
+**port**: Server port (defaults to 3000).
+
+**bodyLimit**: Maximum request body size (defaults to '1mb').
 
 ---
 

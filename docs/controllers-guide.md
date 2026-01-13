@@ -41,9 +41,7 @@ class UserController {
 ### Route Registration
 
 ```typescript
-const app = new Application();
-app.scan(UserController);
-app.listen(3000);
+ClearBoot.create();
 
 // Routes:
 // GET  /users
@@ -322,10 +320,7 @@ class ProductController {
 }
 
 // main.ts
-const app = new Application();
-app.scan(UserController);
-app.scan(ProductController);
-app.listen(3000);
+ClearBoot.create();
 
 // Routes:
 // GET /users
@@ -691,7 +686,7 @@ class ProductController {
 ## Troubleshooting
 
 **Issue: Route not found (404)**
-- Verify controller is registered with `app.scan()`
+- Verify ClearBoot.create() is called
 - Check route path is correct
 - Verify HTTP verb matches
 

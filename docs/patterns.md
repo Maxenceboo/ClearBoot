@@ -548,18 +548,12 @@ class UserService {
 
 ```typescript
 // main.ts
-import { Application } from 'clearboot';
+import { ClearBoot } from 'clearboot';
 import { ErrorHandlerMiddleware } from './middlewares/error-handler.middleware';
 
-const app = new Application();
-
-// Register global error handler
-app.use(ErrorHandlerMiddleware);
-
-// Register routes
-app.scan(UserController);
-
-app.listen(3000);
+ClearBoot.create({
+    globalMiddlewares: [ErrorHandlerMiddleware]
+});
 ```
 
 ---
@@ -654,11 +648,12 @@ class UserController {
 }
 
 // 7. Application Setup
-const app = new Application();
-app.use(ErrorHandlerMiddleware);
-app.use(LoggerMiddleware);
-app.scan(UserController);
-app.listen(3000);
+ClearBoot.create({
+    globalMiddlewares: [
+        ErrorHandlerMiddleware,
+        LoggerMiddleware
+    ]
+});
 ```
 
 This complete example demonstrates:

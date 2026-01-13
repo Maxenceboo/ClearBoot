@@ -16,7 +16,7 @@ npm install clearboot
 
 ```typescript
 // src/main.ts
-import { Application, Controller, Get } from 'clearboot';
+import { ClearBoot, Controller, Get } from 'clearboot';
 
 @Controller()
 class HelloController {
@@ -26,9 +26,7 @@ class HelloController {
     }
 }
 
-const app = new Application();
-app.scan(HelloController);
-app.listen(3000);
+ClearBoot.create();
 
 console.log('Server running at http://localhost:3000');
 ```
@@ -85,9 +83,7 @@ class UserController {
     }
 }
 
-const app = new Application();
-app.scan(UserController);
-app.listen(3000);
+ClearBoot.create();
 ```
 
 ### 2. Request Parameters
@@ -312,22 +308,17 @@ Here's a complete user management API:
 
 ```typescript
 // main.ts
-import { Application } from 'clearboot';
+import { ClearBoot } from 'clearboot';
 import { UserController } from './controllers/user.controller';
 import { ErrorHandlerMiddleware } from './middleware/error-handler.middleware';
 
-const app = new Application();
-
-// Global middleware
-app.use(ErrorHandlerMiddleware);
-
-// Register controllers
-app.scan(UserController);
-
-// Start server
-app.listen(3000, () => {
-    console.log('Server running on http://localhost:3000');
+ClearBoot.create({
+    globalMiddlewares: [
+        ErrorHandlerMiddleware
+    ]
 });
+
+console.log('Server running on http://localhost:3000');
 ```
 
 ```typescript
@@ -427,14 +418,13 @@ export { UserController };
 
 ```typescript
 import request from 'supertest';
-import { Application } from 'clearboot';
+import { ClearBoot } from 'clearboot';
 
 describe('User API', () => {
     let server: any;
 
     beforeEach(() => {
-        const app = new Application();
-        app.scan(UserController);
+        const app = ClearBoot.create();
         server = app.getServer();
     });
 
