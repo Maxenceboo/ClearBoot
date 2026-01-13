@@ -38,9 +38,9 @@ class UserController {
 }
 ```
 
-## Validating Different Parameter Types
+## Validating Request Body
 
-`@Validate` détecte automatiquement le type de paramètre à valider:
+`@Validate` validates the `@Body` parameter:
 
 ```typescript
 import { Query, Param, Body } from 'clearboot';
@@ -53,24 +53,8 @@ class ApiController {
   createUser(@Body() body: any) {
     return body;
   }
-
-  // Validate Query Parameters
-  @Get('/search')
-  @Validate(SearchSchema)
-  search(@Query() query: any) {
-    return { results: [] };
-  }
-
-  // Validate URL Parameters
-  @Get('/users/:id(\\d+)')
-  @Validate(IdSchema)
-  getUser(@Param('id') id: string) {
-    return { id };
-  }
 }
 ```
-
-**Priority Order**: `@Body` → `@Query` → `@Param` → fallback to first argument
 
 ## Réponse d'Erreur (Automatique)
 

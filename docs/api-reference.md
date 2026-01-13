@@ -187,7 +187,7 @@ Provides full access to Node.js ServerResponse object.
 ### Feature Decorators
 
 #### @Validate(schema: ZodSchema)
-Validate incoming request data against a Zod schema. Automatically detects the parameter type to validate.
+Validate incoming request body against a Zod schema.
 
 ```typescript
 import { z } from 'zod';
@@ -197,25 +197,12 @@ const UserSchema = z.object({
     email: z.string().email()
 });
 
-// Validates @Body
 @Post('/')
 @Validate(UserSchema)
 create(@Body() body: any) {
     // body is guaranteed to match schema
 }
-
-// Validates @Query
-@Get('/search')
-@Validate(SearchSchema)
-search(@Query() query: any) { }
-
-// Validates @Param
-@Get('/:id(\\d+)')
-@Validate(IdSchema)
-getItem(@Param('id') id: string) { }
 ```
-
-**Validation Priority**: `@Body` → `@Query` → `@Param` → first argument
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
