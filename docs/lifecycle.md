@@ -7,11 +7,8 @@ ClearBoot v2 supporte maintenant les **Lifecycle Hooks** et le **Graceful Shutdo
 ### `onModuleInit()` - Initialisation du Module
 
 Le hook `onModuleInit()` s'exécute **AVANT** que le serveur ne commence à écouter sur le port. Parfait pour:
-- Connexion à la base de données
-- Vérification de la santé des services
-- Chargement de configuration depuis une source externe
-- Migration de la DB
-- Préréchauffage du cache
+
+**Classes injectables uniquement:** si vous passez une classe, elle doit implémenter l'interface `IModuleInit` et exposer une méthode `init()`. Sinon, ClearBoot lèvera une erreur au démarrage (comme pour les interfaces `IMiddleware` ou `IHeaderProvider`).
 
 ### Exemple Basique
 
@@ -27,6 +24,29 @@ const server = await ClearBoot.create({
         await someAsyncSetup();
         console.log('✅ Prêt!');
     }
+});
+```
+
+### Exemple: Multiples services d'init avec `IModuleInit`
+
+```typescript
+@Injectable()
+class AppInitService implements IModuleInit {
+    async init() {
+        console.log('🔧 Init applicatif...');
+    }
+}
+
+@Injectable()
+class MetricsInitService implements IModuleInit {
+    async init() {
+        console.log('📈 Init métriques...');
+    }
+}
+
+await ClearBoot.create({
+    port: 3000,
+    onModuleInit: [AppInitService, MetricsInitService]
 });
 ```
 

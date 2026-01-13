@@ -1,4 +1,5 @@
 import request from 'supertest';
+import * as http from 'http';
 import {
     ClearBoot, Controller, Get, Post,
     Body, Query, Param, HttpCode, Header, Validate, Injectable
@@ -37,11 +38,15 @@ class TestController {
 
 // --- SETUP DES TESTS ---
 describe('INTEGRATION - ClearBoot Server', () => {
-    let app: any;
+    let app: http.Server;
 
     beforeAll(async () => {
         // On crée l'app SANS écouter le port (mode test)
         app = await ClearBoot.create({});
+    });
+
+    afterAll((done) => {
+        app.close(done);
     });
 
     test('GET /test/hello -> 200 OK', async () => {

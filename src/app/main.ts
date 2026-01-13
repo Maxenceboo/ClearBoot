@@ -8,7 +8,9 @@ import {
     Get,
     Post,
     Body,
-    Validate
+    Validate,
+    Injectable,
+    IModuleInit
 } from '../lib/index';
 
 // --- 1. Définition du Schéma de Validation (Zod) ---
@@ -44,6 +46,26 @@ class UserController {
     }
 }
 
+// --- 2bis. Service injectable pour l'initialisation (DB, cache, etc.) ---
+@Injectable()
+class AppInitService implements IModuleInit {
+    async init() {
+        // Exemple: connexion DB, vérification de dépendances externes, warming cache
+        console.log('🔧 AppInitService: initialisation en cours...');
+        // await db.connect(); // décommentez et injectez votre client
+        console.log('✅ AppInitService: prêt');
+    }
+}
+
+@Injectable()
+class MetricsInitService implements IModuleInit {
+    async init() {
+        console.log('📈 MetricsInitService: init metrics/exporters...');
+        // Exemple: initialiser un exporteur Prometheus / tracer
+        console.log('✅ MetricsInitService: prêt');
+    }
+}
+
 // --- 3. Initialisation de ClearBoot ---
 ClearBoot.create({
     // Configuration des Middlewares Globaux (Ordre important)
@@ -60,11 +82,7 @@ ClearBoot.create({
         credentials: true
     },
 
-    // 🔄 Lifecycle Hook - S'exécute AVANT le démarrage du serveur
-    // Utile pour: connexion DB, vérification de santé, chargement de config, etc.
-    onModuleInit: async () => {
-        console.log('🔧 Initialisation du module...');
-        // Exemple: await db.connect();
-        console.log('✅ Module initialisé');
-    }
+    // 🔄 Lifecycle Hooks - exécutés AVANT le démarrage du serveur (ordre défini)
+    // Supporte plusieurs classes injectables ou fonctions
+    onModuleInit: [AppInitService, MetricsInitService]
 });

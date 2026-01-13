@@ -1,17 +1,21 @@
 import * as http from 'http';
 import * as dotenv from 'dotenv';
-import { globalContainer } from '../di/container';
+import { globalContainer, inject } from '../di/container';
 import { PROVIDERS_REGISTRY } from '../common/types';
 import { MetadataScanner } from './metadata-scanner';
 import { RequestHandler } from './request-handler';
-import { MiddlewareClass } from '../common/interfaces';
+import { MiddlewareClass, ModuleInitClass } from '../common/interfaces';
 import { CorsOptions } from '../http/cors';
 
 export interface ModuleConfig {
     port?: number;
     globalMiddlewares?: MiddlewareClass[];
     cors?: CorsOptions;
-    onModuleInit?: () => Promise<void> | void; // 👈 Lifecycle hook
+    // 👇 Lifecycle hook: function, injectable class with init(), or array of both
+    onModuleInit?:
+        | (() => Promise<void> | void)
+        | ModuleInitClass
+        | Array<(() => Promise<void> | void) | ModuleInitClass>;
 }
 
 export class ClearBoot {
@@ -32,7 +36,31 @@ export class ClearBoot {
         // 4. Lifecycle Hook - Exécuter avant de démarrer le serveur
         if (config.onModuleInit) {
             console.log("⏳ Exécution de onModuleInit()...");
-            await config.onModuleInit();
+
+            const items = Array.isArray(config.onModuleInit)
+                ? config.onModuleInit
+                : [config.onModuleInit];
+
+            for (const item of items) {
+                if (typeof item === 'function') {
+                    const isClass = /^class\s/.test(item.toString());
+
+                    if (isClass) {
+                        const instance: any = inject(item as any);
+                        if (typeof instance?.init !== 'function') {
+                            throw new Error('onModuleInit class must implement init() (IModuleInit)');
+                        }
+                        await instance.init();
+                        continue;
+                    }
+
+                    await (item as any)();
+                    continue;
+                }
+
+                await (item as any)();
+            }
+
             console.log("✅ onModuleInit() terminé\n");
         }
 

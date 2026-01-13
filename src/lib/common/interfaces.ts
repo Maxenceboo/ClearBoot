@@ -12,3 +12,10 @@ export interface IHeaderProvider {
 
 export type MiddlewareClass = new (...args: any[]) => IMiddleware;
 export type HeaderProviderClass = new (...args: any[]) => IHeaderProvider;
+
+// Lifecycle init contract used by onModuleInit
+export interface IModuleInit {
+    init(): Promise<void> | void;
+}
+
+export type ModuleInitClass = new (...args: any[]) => IModuleInit;
