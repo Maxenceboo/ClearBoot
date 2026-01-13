@@ -1,8 +1,6 @@
 import {
-    ClearBoot, Controller, Get, Post, Body, Injectable, inject, Middleware
-} from '../lib/index';
-import { IMiddleware } from '../lib/common/interfaces';
-import { ClearResponse } from '../lib/http/response';
+    ClearBoot, Controller, Get, Post, Body, Injectable, inject, Middleware, IMiddleware,ClearResponse
+} from '../lib';
 
 // --- SERVICE ---
 @Injectable()

@@ -3,3 +3,4 @@ export * from './decorators';
 export * from './core/application';
 export * from './common/interfaces';
 export * from './http/response';
+export * from './common/exceptions';
