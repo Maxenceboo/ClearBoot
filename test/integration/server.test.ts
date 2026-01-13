@@ -1,12 +1,20 @@
 import request from 'supertest';
 import {
     ClearBoot, Controller, Get, Post,
-    Body, Query, Param, HttpCode, Header, Validate
+    Body, Query, Param, HttpCode, Header, Validate, Injectable
 } from '../../src/lib';
+import { IHeaderProvider } from '../../src/lib/common/interfaces';
 import { z } from 'zod';
 
 // --- SETUP DU CONTROLEUR DE TEST ---
 const UserSchema = z.object({ name: z.string() });
+
+@Injectable()
+class TestHeaderProvider implements IHeaderProvider {
+    getHeaders() {
+        return { 'X-Test': 'True' };
+    }
+}
 
 @Controller('/test')
 class TestController {
@@ -20,7 +28,7 @@ class TestController {
     @Post('/create')
     @HttpCode(201)
     @Validate(UserSchema)
-    @Header('X-Test', 'True')
+    @Header(TestHeaderProvider)
     create(@Body() body: any) { return { created: body.name }; }
 
     @Get('/search')
