@@ -40,3 +40,10 @@ export class InternalServerErrorException extends HttpException {
         super(message, 500);
     }
 }
+
+// 413 - Payload Too Large (Trop de données)
+export class PayloadTooLargeException extends HttpException {
+    constructor(message: string = 'Payload Too Large') {
+        super(message, 413);
+    }
+}

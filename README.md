@@ -95,3 +95,43 @@ La documentation complète est disponible dans le dossier [`docs/`](https://www.
 ## 📄 Licence
 
 Distribué sous la licence MIT.
+
+
+.
+
+.
+
+.
+
+# 📝 Roadmap ClearBoot v2
+
+## 🚨 Phase 1 : Sécurité & Stabilité (URGENT)
+
+*L'objectif est de boucher les trous de sécurité avant d'ajouter des fonctionnalités.*
+
+* [ ] **Sécuriser le Body Parser** : Ajouter une limite de taille (ex: 1MB) pour éviter les attaques DoS (Denial of Service) par saturation de la mémoire.
+* [ ] **Gestion Safe du JSON** : Empêcher le serveur de crasher si un utilisateur envoie un JSON mal formé (ajout d'un `try-catch` dans le parser).
+* [ ] **Headers de Sécurité** : Créer un middleware global (style "Helmet") pour ajouter les headers HTTP de sécurité (`X-Content-Type-Options`, `X-Frame-Options`, etc.).
+
+## 🏗️ Phase 2 : Cycle de Vie & Base de Données
+
+*L'objectif est de gérer proprement les connexions externes (DB).*
+
+* [ ] **Lifecycle Hooks** : Ajouter une méthode `onModuleInit()` dans `ClearBoot` pour permettre de se connecter à la DB *avant* d'écouter le port.
+* [ ] **Graceful Shutdown** : Gérer les signaux `SIGTERM` et `SIGINT` (Ctrl+C) pour fermer la connexion DB et le serveur proprement sans corrompre de données.
+* [ ] **Intégration ORM** : Créer un exemple ou un module pour intégrer proprement **TypeORM** ou **Prisma** avec notre système d'injection `inject()`.
+
+## 📦 Phase 3 : Fonctionnalités HTTP Avancées
+
+*L'objectif est de supporter autre chose que du simple JSON.*
+
+* [ ] **Support Cookies** : Ajouter un parser pour lire (`req.cookies`) et écrire (`res.cookie()`) des cookies (indispensable pour l'auth).
+* [ ] **Support Form-Data** : Gérer le format `application/x-www-form-urlencoded` (formulaires HTML classiques).
+* [ ] **Upload de Fichiers** : Gérer le format `multipart/form-data` pour permettre l'upload d'images/fichiers.
+
+## 🚀 Phase 4 : Optimisations (Bonus)
+
+*Pour quand le framework sera sous forte charge.*
+
+* [ ] **Optimisation du Routing** : Remplacer la boucle `for` actuelle par une structure en arbre (Radix Tree) ou une Map pour accélérer la recherche de routes.
+* [ ] **Request Scoping** : (Très avancé) Permettre l'injection de services liés à la requête (et non Singleton) pour stocker l'utilisateur connecté sans risque de fuite de données entre utilisateurs.
