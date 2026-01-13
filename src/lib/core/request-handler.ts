@@ -5,59 +5,64 @@ import { matchPath } from '../router/path-matcher';
 import { parseBody, parseQueryParams, isJson } from '../http/request-utils';
 import { ControllerMetadata } from './metadata-scanner';
 import { MiddlewareClass, IMiddleware } from '../common/interfaces';
-import { extendResponse, ClearResponse } from '../http/response';
+import { extendResponse } from '../http/response';
 import { HttpException } from '../common/exceptions';
+import { applyCors, CorsOptions } from '../http/cors'; // 👈 NOUVEL IMPORT
 
 export class RequestHandler {
     static async handle(
         req: http.IncomingMessage,
         res: http.ServerResponse,
         controllers: ControllerMetadata[],
-        globalMiddlewares: MiddlewareClass[] = []
+        globalMiddlewares: MiddlewareClass[] = [],
+        corsOptions?: CorsOptions // 👈 NOUVEL ARGUMENT
     ) {
-        // 1. Transformation de la réponse native en réponse "Fluent"
+        // 1. Transformation de la réponse (Fluent API)
         const response = extendResponse(res);
 
-        response.setHeader('Content-Type', 'application/json');
-        response.setHeader('Access-Control-Allow-Origin', '*');
+        // 2. Application de la sécurité CORS (Dynamique)
+        // On applique les headers AVANT de traiter quoi que ce soit d'autre
+        applyCors(req, response, corsOptions);
 
-        // Gestion du Preflight CORS
+        // 3. Gestion du Preflight (OPTIONS)
+        // Si c'est une vérification navigateur, on répond OK tout de suite
         if (req.method === 'OPTIONS') {
             response.status(204).send('');
             return;
         }
 
+        // 4. Parsing de l'URL
         const parsedUrl = new URL(req.url || '/', `http://${req.headers.host}`);
         const urlPath = parsedUrl.pathname.replace(/\/$/, '') || '/';
         const method = req.method;
 
-        // 2. Recherche de la route correspondante
+        // 5. Recherche de la Route
         for (const ctrl of controllers) {
             for (const route of ctrl.routes) {
                 const routeParams = matchPath(route.fullPath, urlPath);
 
                 if (routeParams && route.method === method) {
                     try {
-                        // 3. Agrégation des Middlewares (Global -> Controller -> Route)
+                        // --- PIPELINE D'EXÉCUTION ---
+
+                        // A. Agrégation des Middlewares
                         const ctrlMiddlewares = Reflect.getMetadata('ctrl_middlewares', ctrl.instance.constructor) || [];
                         const routeMiddlewares = Reflect.getMetadata('route_middlewares', ctrl.instance, route.handlerName) || [];
-
-                        // L'ordre est crucial : d'abord les globaux, puis ceux du ctrl, puis ceux de la route
                         const allMiddlewares = [...globalMiddlewares, ...ctrlMiddlewares, ...routeMiddlewares];
 
-                        // 4. Définition du Handler final (ce qui s'exécute après les middlewares)
+                        // B. Définition du Handler Final (ce qui s'exécute à la fin)
                         const executeHandler = async () => {
                             const queryParams = parseQueryParams(parsedUrl);
                             const bodyParams = (['POST', 'PUT', 'PATCH'].includes(method || '')) ? await parseBody(req) : {};
 
-                            // Injection des paramètres (@Body, @Param, @Req, etc.)
+                            // Injection des paramètres (@Body, @Param, etc.)
                             let args: any[] = [];
                             if (route.paramsMeta.length > 0) {
                                 args = new Array(route.paramsMeta.length);
                                 route.paramsMeta.forEach((p: any) => {
                                     let val: any = null;
                                     if (p.type === ParamType.REQ) val = req;
-                                    else if (p.type === ParamType.RES) val = response; // On injecte la réponse améliorée
+                                    else if (p.type === ParamType.RES) val = response;
                                     else if (p.type === ParamType.BODY) val = bodyParams;
                                     else if (p.type === ParamType.QUERY) val = queryParams;
                                     else if (p.type === ParamType.PARAM) val = routeParams;
@@ -66,50 +71,46 @@ export class RequestHandler {
                                     else args[p.index] = val;
                                 });
                             } else {
-                                // Fallback si pas de décorateurs de params
                                 args = [{ ...queryParams, ...bodyParams, ...routeParams }];
                             }
 
-                            // Exécution de la méthode du contrôleur
+                            // Appel de la méthode du contrôleur
                             const result = await ctrl.instance[route.handlerName](...args);
 
                             if (response.writableEnded) return;
 
-                            // Gestion des headers spécifiques à la route
+                            // Headers customs définis via @Header
                             const customHeaders = Reflect.getMetadata('response_headers', ctrl.instance, route.handlerName) || {};
                             Object.keys(customHeaders).forEach(key => response.setHeader(key, customHeaders[key]));
 
-                            // Gestion du Status Code
+                            // Code HTTP défini via @HttpCode
                             const statusCode = Reflect.getMetadata('http_code', ctrl.instance, route.handlerName) || 200;
 
-                            // Envoi de la réponse finale
+                            // Envoi de la réponse
                             if (typeof result === 'object') response.status(statusCode).json(result);
                             else response.status(statusCode).send(String(result));
                         };
 
-                        // 5. Dispatcher récursif des Middlewares
+                        // C. Dispatcher des Middlewares
                         let index = -1;
                         const dispatch = async (i: number) => {
                             if (i <= index) return;
                             index = i;
 
-                            // Si on a fini les middlewares, on lance le handler
                             if (i === allMiddlewares.length) {
                                 await executeHandler();
                                 return;
                             }
 
                             const MiddlewareClass = allMiddlewares[i];
-
-                            // On enregistre (au cas où) et on résout via DI pour avoir les injections
+                            // Instanciation via DI
                             globalContainer.register(MiddlewareClass, new MiddlewareClass());
                             const instance = globalContainer.resolve(MiddlewareClass) as IMiddleware;
 
                             try {
-                                // On appelle le middleware en lui passant 'next' qui est dispatch(i + 1)
                                 await instance.use(req, response, () => dispatch(i + 1));
                             } catch (err) {
-                                throw err; // On remonte l'erreur au catch global
+                                throw err;
                             }
                         };
 
@@ -118,10 +119,10 @@ export class RequestHandler {
                         return;
 
                     } catch (e: any) {
-                        // 6. GESTION GLOBALE DES ERREURS (Exception Filters)
+                        // 6. GESTION DES ERREURS (Exception Filters)
                         if (!response.writableEnded) {
 
-                            // Cas A : Erreur Http connue (NotFoundException, ForbiddenException...)
+                            // Erreur HTTP connue
                             if (e instanceof HttpException) {
                                 response.status(e.status).json({
                                     statusCode: e.status,
@@ -129,18 +130,18 @@ export class RequestHandler {
                                     timestamp: new Date().toISOString()
                                 });
                             }
-                            // Cas B : Erreur de Validation Zod (hack avec e.status)
+                            // Erreur de Validation (Zod hack)
                             else if (e.status) {
                                 const msg = isJson(e.message) ? JSON.parse(e.message) : { error: e.message };
                                 response.status(e.status).json(msg);
                             }
-                            // Cas C : Erreur Serveur inconnue (Crash)
+                            // Crash Serveur
                             else {
                                 console.error("🔥 INTERNAL SERVER ERROR:", e);
                                 response.status(500).json({
                                     statusCode: 500,
                                     error: "Internal Server Error",
-                                    message: "Something went wrong on the server"
+                                    message: "Something went wrong"
                                 });
                             }
                         }
@@ -150,7 +151,7 @@ export class RequestHandler {
             }
         }
 
-        // 7. Aucune route trouvée (404 par défaut)
+        // 7. Route non trouvée (404)
         response.status(404).json({
             statusCode: 404,
             error: "Route not found"
