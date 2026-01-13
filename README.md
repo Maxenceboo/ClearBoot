@@ -89,7 +89,8 @@ La documentation complète et détaillée est disponible dans [`docs/`](docs/REA
 - 🚀 **[Getting Started](docs/getting-started.md)** - Démarrage rapide et premiers pas
 - 🛣️ **[Controllers Guide](docs/controllers-guide.md)** - Routes, paramètres, HTTP verbs
 - 📝 **[HTTP Responses](docs/http-response.md)** - Status codes, headers, serialization
-- 🎯 **[Feature Decorators](docs/feature-decorators.md)** - @Validate, @Serialize
+- � **[HTTP Features](docs/http-features.md)** - Cookies, Form-Data, File Upload
+- �🎯 **[Feature Decorators](docs/feature-decorators.md)** - @Validate, @Serialize
 - 💉 **[Dependency Injection](docs/dependency-injection-advanced.md)** - Services et patterns
 - 🏗️ **[Architectural Patterns](docs/patterns.md)** - MVC, Service Layer, Repository Pattern
 - 🔄 **[Lifecycle & Database](docs/lifecycle.md)** - onModuleInit, Graceful Shutdown, ORM Integration
@@ -139,13 +140,13 @@ Distribué sous la licence MIT.
 * [x] **Graceful Shutdown** : Gérer les signaux `SIGTERM` et `SIGINT` (Ctrl+C) pour fermer la connexion DB et le serveur proprement.
 * [x] **Intégration ORM** : Exemples avec **TypeORM**, **Prisma**, et **MongoDB** native driver.
 
-## 📦 Phase 3 : Fonctionnalités HTTP Avancées
+## 📦 Phase 3 : Fonctionnalités HTTP Avancées (TERMINÉE ✅)
 
 *L'objectif est de supporter autre chose que du simple JSON.*
 
-* [ ] **Support Cookies** : Ajouter un parser pour lire (`req.cookies`) et écrire (`res.cookie()`) des cookies (indispensable pour l'auth).
-* [ ] **Support Form-Data** : Gérer le format `application/x-www-form-urlencoded` (formulaires HTML classiques).
-* [ ] **Upload de Fichiers** : Gérer le format `multipart/form-data` pour permettre l'upload d'images/fichiers.
+* [x] **Support Cookies** : Parser pour lire (`@Cookie()`) et écrire (`res.cookie()`) des cookies (indispensable pour l'auth).
+* [x] **Support Form-Data** : Gérer le format `application/x-www-form-urlencoded` (formulaires HTML classiques).
+* [x] **Upload de Fichiers** : Gérer le format `multipart/form-data` pour permettre l'upload d'images/fichiers.
 
 ## 🚀 Phase 4 : Optimisations (Bonus)
 

@@ -2,7 +2,8 @@ import * as http from 'http';
 import { globalContainer } from '../di/container';
 import { ParamType } from '../common/types';
 import { matchPath } from '../router/path-matcher';
-import { parseBody, parseQueryParams, isJson } from '../http/request-utils';
+import { parseBody, parseQueryParams, isJson, parseCookies, parseFormData } from '../http/request-utils';
+import { parseMultipart, MultipartResult } from '../http/multipart-parser';
 import { ControllerMetadata } from './metadata-scanner';
 import { MiddlewareClass, IMiddleware } from '../common/interfaces';
 import { extendResponse } from '../http/response';
@@ -41,7 +42,27 @@ export class RequestHandler {
 
                         const executeHandler = async () => {
                             const queryParams = parseQueryParams(parsedUrl);
-                            let bodyParams = (['POST', 'PUT', 'PATCH'].includes(method || '')) ? await parseBody(req) : {};
+                            const cookies = parseCookies(req);
+                            let bodyParams = {};
+                            let files: MultipartResult['files'] = [];
+
+                            // Parse body selon le Content-Type
+                            if (['POST', 'PUT', 'PATCH'].includes(method || '')) {
+                                const contentType = req.headers['content-type'] || '';
+                                
+                                if (contentType.includes('multipart/form-data')) {
+                                    const multipart = await parseMultipart(req);
+                                    bodyParams = multipart.fields;
+                                    files = multipart.files;
+                                } else if (contentType.includes('application/x-www-form-urlencoded')) {
+                                    bodyParams = await parseFormData(req);
+                                } else if (contentType.includes('application/json') || !contentType) {
+                                    bodyParams = await parseBody(req);
+                                }
+                            }
+
+                            // Attacher les fichiers à req pour y accéder via @Req()
+                            (req as any).files = files;
 
                             // --- 🛡️ LOGIQUE DE VALIDATION (Lien avec ton décorateur dans features) ---
                             const schema = Reflect.getMetadata('validation_schema', ctrl.instance, route.handlerName);
@@ -69,6 +90,7 @@ export class RequestHandler {
                                     else if (p.type === ParamType.BODY) val = bodyParams;
                                     else if (p.type === ParamType.QUERY) val = queryParams;
                                     else if (p.type === ParamType.PARAM) val = routeParams;
+                                    else if (p.type === ParamType.COOKIE) val = cookies;
 
                                     if (p.key && val && typeof val === 'object') args[p.index] = val[p.key];
                                     else args[p.index] = val;

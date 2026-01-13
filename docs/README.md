@@ -12,6 +12,7 @@ Welcome to the ClearBoot documentation. A lightweight, type-safe TypeScript fram
 
 ### Core Features
 - **[HTTP Responses](http-response.md)** - Status codes, headers, serialization
+- **[HTTP Features](http-features.md)** - Cookies, Form-Data, File Upload
 - **[Validation](validation.md)** - Schema validation with Zod
 - **[Middleware](middlewares.md)** - Cross-cutting concerns, request/response processing
 - **[Dependency Injection](dependency-injection.md)** - Service management (advanced patterns)

@@ -3,7 +3,8 @@ export enum ParamType {
     QUERY = 'QUERY',
     PARAM = 'PARAM',
     REQ = 'REQ',
-    RES = 'RES'
+    RES = 'RES',
+    COOKIE = 'COOKIE'
 }
 
 export const PROVIDERS_REGISTRY: any[] = [];

@@ -14,3 +14,4 @@ export function Query(key?: string) { return registerParam(ParamType.QUERY, key)
 export function Param(key?: string) { return registerParam(ParamType.PARAM, key); }
 export function Req() { return registerParam(ParamType.REQ); }
 export function Res() { return registerParam(ParamType.RES); }
+export function Cookie(key?: string) { return registerParam(ParamType.COOKIE, key); }

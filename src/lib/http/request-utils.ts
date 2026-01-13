@@ -75,3 +75,84 @@ export const isJson = (str: string) => {
         return false;
     }
 };
+
+/**
+ * Parse les cookies depuis le header 'Cookie'
+ * Format: "name1=value1; name2=value2"
+ */
+export const parseCookies = (req: http.IncomingMessage): Record<string, string> => {
+    const cookieHeader = req.headers.cookie;
+    if (!cookieHeader) return {};
+
+    const cookies: Record<string, string> = {};
+    
+    cookieHeader.split(';').forEach(cookie => {
+        const [name, ...rest] = cookie.split('=');
+        if (name && rest.length > 0) {
+            cookies[name.trim()] = decodeURIComponent(rest.join('=').trim());
+        }
+    });
+
+    return cookies;
+};
+
+/**
+ * Parse le form-data (application/x-www-form-urlencoded)
+ */
+export const parseFormData = (req: http.IncomingMessage): Promise<any> => {
+    return new Promise((resolve, reject) => {
+        let body = '';
+        let totalSize = 0;
+
+        req.on('data', (chunk) => {
+            totalSize += chunk.length;
+
+            if (totalSize > MAX_BODY_SIZE) {
+                req.destroy();
+                reject(new PayloadTooLargeException(`Body size limit exceeded (${MAX_BODY_SIZE} bytes)`));
+                return;
+            }
+
+            body += chunk.toString();
+        });
+
+        req.on('end', () => {
+            try {
+                if (!body) {
+                    resolve({});
+                    return;
+                }
+
+                const params: any = {};
+                const pairs = body.split('&');
+
+                pairs.forEach(pair => {
+                    const [key, value] = pair.split('=');
+                    if (key) {
+                        const decodedKey = decodeURIComponent(key);
+                        const decodedValue = value ? decodeURIComponent(value.replace(/\+/g, ' ')) : '';
+
+                        // Support pour les champs multiples (ex: tags[]=a&tags[]=b)
+                        if (params[decodedKey]) {
+                            if (Array.isArray(params[decodedKey])) {
+                                params[decodedKey].push(decodedValue);
+                            } else {
+                                params[decodedKey] = [params[decodedKey], decodedValue];
+                            }
+                        } else {
+                            params[decodedKey] = decodedValue;
+                        }
+                    }
+                });
+
+                resolve(params);
+            } catch (e) {
+                reject(new BadRequestException('Invalid form data format'));
+            }
+        });
+
+        req.on('error', (err) => {
+            reject(new BadRequestException('Error reading form data'));
+        });
+    });
+};
