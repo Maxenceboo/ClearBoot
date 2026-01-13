@@ -133,6 +133,35 @@ class UserController {
 // GET /products/electronics/phones → { category: "electronics", subcategory: "phones" }
 ```
 
+### Route Parameter Validation with Regex
+
+Add regex patterns to validate parameter format at routing level:
+
+```typescript
+@Controller('/api')
+class ApiController {
+    @Get('/users/:id(\\d+)')           // Only numbers
+    getUser(@Param('id') id: string) {
+        return { id };
+    }
+
+    @Get('/posts/:slug([a-z-]+)')       // Only lowercase + hyphens
+    getPost(@Param('slug') slug: string) {
+        return { slug };
+    }
+
+    @Get('/files/:name(.+\\.\\w+)')     // Filename with extension
+    downloadFile(@Param('name') name: string) {
+        return { file: name };
+    }
+}
+
+// GET /users/123 → matches (123 is digits)
+// GET /users/abc → 404 (abc doesn't match \d+)
+// GET /posts/hello-world → matches
+// GET /posts/Hello → 404 (capital H doesn't match [a-z-]+)
+```
+
 ---
 
 ## Query Parameters

@@ -99,31 +99,47 @@ const ProductSchema = z.object({
 ```
 
 ### Validating Different Sources
+`@Validate` inspects your route decorators and validates the appropriate parameter:
+
 ```typescript
 @Controller('/api')
 class ApiController {
-    // Validate @Body (default)
+    // Validates @Body by default
     @Post('/users')
     @Validate(UserSchema)
     createUser(@Body() body: any) {
-        return body;
+        return body;  // body is validated against UserSchema
     }
 
-    // Validate @Query
+    // Validates @Query (if present)
     @Get('/search')
     @Validate(SearchSchema)
     search(@Query() query: any) {
-        return { results: [] };
+        return { results: [] };  // query is validated
     }
 
-    // Validate @Param
-    @Get('/:id')
+    // Validates @Param (if present)
+    @Get('/:id(\\d+)')
     @Validate(IdSchema)
     getItem(@Param('id') id: string) {
-        return { id };
+        return { id };  // id param is validated
     }
 }
 ```
+
+**Note**: `@Validate` prioritizes in order: `@Body` → `@Query` → `@Param` → falls back to first argument.
+
+### Dynamic Routes with Regex
+Route parameters support regex patterns to enforce validation at the routing level:
+
+```typescript
+@Get('/users/:id(\\d+)')        // Only matches numbers
+@Get('/posts/:slug([a-z-]+)')   // Only matches lowercase + hyphens
+@Get('/files/:name(.+\\.\\w+)')   // File with extension
+get(@Param('id') id: string) {}
+```
+
+If the URL doesn't match the regex, it returns 404 automatically (no 400 validation error).
 
 ---
 

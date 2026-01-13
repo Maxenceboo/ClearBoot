@@ -92,9 +92,10 @@ Handles HTTP OPTIONS requests.
 ### Parameter Decorators
 
 #### @Param(name: string)
-Extract route parameters from the URL path.
+Extract route parameters from the URL path. Supports regex validation patterns.
 
 ```typescript
+// Basic parameters
 @Get('/:id')
 getUser(@Param('id') id: string) { }
 
@@ -103,7 +104,15 @@ getUserPost(
     @Param('userId') userId: string,
     @Param('postId') postId: string
 ) { }
+
+// With regex validation
+@Get('/users/:id(\\d+)')           // Only numbers
+@Get('/posts/:slug([a-z-]+)')      // Lowercase + hyphens
+@Get('/files/:name(.+\\.\\w+)')    // Filename with extension
+getResource(@Param('id') id: string) { }
 ```
+
+**Note**: If the URL doesn't match the regex pattern, it returns 404 automatically.
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -178,7 +187,7 @@ Provides full access to Node.js ServerResponse object.
 ### Feature Decorators
 
 #### @Validate(schema: ZodSchema)
-Validate incoming request body against a Zod schema.
+Validate incoming request data against a Zod schema. Automatically detects the parameter type to validate.
 
 ```typescript
 import { z } from 'zod';
@@ -188,12 +197,25 @@ const UserSchema = z.object({
     email: z.string().email()
 });
 
+// Validates @Body
 @Post('/')
 @Validate(UserSchema)
 create(@Body() body: any) {
     // body is guaranteed to match schema
 }
+
+// Validates @Query
+@Get('/search')
+@Validate(SearchSchema)
+search(@Query() query: any) { }
+
+// Validates @Param
+@Get('/:id(\\d+)')
+@Validate(IdSchema)
+getItem(@Param('id') id: string) { }
 ```
+
+**Validation Priority**: `@Body` → `@Query` → `@Param` → first argument
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

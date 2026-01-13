@@ -1,16 +1,15 @@
 
 # ✅ Validation des Données
 
-ClearBoot intègre nativement **Zod** pour valider les données entrantes (Body).
+ClearBoot intègre nativement **Zod** pour valider les données entrantes (Body, Query, Params).
 
 ## Prérequis
 
 ```bash
 npm install zod
-
 ```
 
-## Utilisation
+## Utilisation Basique
 
 1. Définissez un schéma Zod.
 2. Utilisez le décorateur `@Validate(schema)` sur votre route.
@@ -37,8 +36,41 @@ class UserController {
     return { status: "User created", data: body };
   }
 }
-
 ```
+
+## Validating Different Parameter Types
+
+`@Validate` détecte automatiquement le type de paramètre à valider:
+
+```typescript
+import { Query, Param, Body } from 'clearboot';
+
+@Controller('/api')
+class ApiController {
+  // Validate Body
+  @Post('/users')
+  @Validate(CreateUserSchema)
+  createUser(@Body() body: any) {
+    return body;
+  }
+
+  // Validate Query Parameters
+  @Get('/search')
+  @Validate(SearchSchema)
+  search(@Query() query: any) {
+    return { results: [] };
+  }
+
+  // Validate URL Parameters
+  @Get('/users/:id(\\d+)')
+  @Validate(IdSchema)
+  getUser(@Param('id') id: string) {
+    return { id };
+  }
+}
+```
+
+**Priority Order**: `@Body` → `@Query` → `@Param` → fallback to first argument
 
 ## Réponse d'Erreur (Automatique)
 
