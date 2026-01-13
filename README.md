@@ -81,15 +81,28 @@ ClearBoot.create({ port: 3000 });
 
 ---
 
-## 📚 Documentation
+## 📚 Complete Documentation
 
-La documentation complète est disponible dans le dossier [`docs/`](https://www.google.com/search?q=./docs).
+La documentation complète et détaillée est disponible dans [`docs/`](docs/README.md). **Consultez le fichier [docs/README.md](docs/README.md) pour une navigation complète.**
 
-1. **[Contrôleurs & Routing](docs/controllers.md)**
+### Quick Navigation
+- 🚀 **[Getting Started](docs/getting-started.md)** - Démarrage rapide et premiers pas
+- 🛣️ **[Controllers Guide](docs/controllers-guide.md)** - Routes, paramètres, HTTP verbs
+- 📝 **[HTTP Responses](docs/http-response.md)** - Status codes, headers, serialization
+- 🎯 **[Feature Decorators](docs/feature-decorators.md)** - @Validate, @Serialize
+- 💉 **[Dependency Injection](docs/dependency-injection-advanced.md)** - Services et patterns
+- 🏗️ **[Architectural Patterns](docs/patterns.md)** - MVC, Service Layer, Repository Pattern
+- 🧪 **[Testing Guide](docs/testing.md)** - Unit & Integration tests
+- 📖 **[API Reference](docs/api-reference.md)** - Complete decorator & API reference
+
+### Other Resources
+1. **[Contrôleurs & Routing](docs/controllers-guide.md)**
 2. **[Middlewares & Sécurité](docs/middlewares.md)**
-3. **[Injection de Dépendances (DI)](docs/dependency-injection.md)**
-4. **[Validation avec Zod](docs/validation.md)**
+3. **[Injection de Dépendances (DI)](docs/dependency-injection-advanced.md)**
+4. **[Validation avec Zod](docs/feature-decorators.md)**
 5. **[Architecture](docs/architecture.md)**
+6. **[Configuration](docs/configuration.md)**
+7. **[Exception Handling](docs/exceptions.md)**
 
 ---
 
