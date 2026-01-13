@@ -46,12 +46,12 @@ async function bootstrap() {
 
     const server = await ClearBoot.create({
         port: 3000,
-        
+
         // 👇 Hook exécuté AVANT le démarrage du serveur
         onModuleInit: async () => {
             // Se connecter à la DB avant d'accepter des requêtes
             await db.connect();
-            
+
             // Vérifier que tout est OK
             if (!db.isConnected()) {
                 throw new Error('❌ Impossible de démarrer sans DB');
@@ -66,7 +66,7 @@ async function bootstrap() {
     // 3. Exit proprement
 
     console.log('🎉 Application démarrée avec DB connectée');
-    
+
     // Pour démo: afficher qu'on peut faire des requêtes
     setTimeout(async () => {
         const result = await db.query('SELECT * FROM users');

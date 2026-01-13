@@ -12,7 +12,7 @@ describe('INTEGRATION - CORS Security', () => {
     let server: http.Server;
     const ALLOWED_ORIGIN = 'http://trusted-site.com';
 
-        beforeAll(async () => {
+    beforeAll(async () => {
         server = await ClearBoot.create({
             port: 0,
             cors: {

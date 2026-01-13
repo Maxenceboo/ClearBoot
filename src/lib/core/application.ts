@@ -48,11 +48,11 @@ export class ClearBoot {
         // 7. Graceful Shutdown Handler
         const shutdown = async (signal: string) => {
             console.log(`\n⚠️  ${signal} reçu. Fermeture gracieuse...`);
-            
+
             // Cleanup handlers
             ClearBoot.shutdownHandlers.forEach(handler => handler());
             ClearBoot.shutdownHandlers = [];
-            
+
             server.close(() => {
                 console.log("✅ Serveur HTTP fermé");
                 process.exit(0);
