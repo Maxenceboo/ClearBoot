@@ -76,7 +76,7 @@ const CreateUserSchema = z.object({
 
 @Controller('/users')
 class UserController {
-    constructor(private userService: UserService) {}
+    private userService = inject(UserService);
 
     @Get('/:id')
     @Serialize(UserDTO)
@@ -119,7 +119,7 @@ repositories/
 // user.repository.ts
 @Injectable()
 class UserRepository {
-    constructor(private db: Database) {}
+    private db = inject(Database);
 
     async findById(id: number): Promise<User | null> {
         return this.db.query('SELECT * FROM users WHERE id = ?', [id]);
@@ -145,11 +145,9 @@ class UserRepository {
 // user.service.ts
 @Injectable()
 class UserService {
-    constructor(
-        private repo: UserRepository,
-        private email: EmailService,
-        private logger: LoggerService
-    ) {}
+    private repo = inject(UserRepository);
+    private email = inject(EmailService);
+    private logger = inject(LoggerService);
 
     async registerUser(data: any): Promise<User> {
         this.logger.log(`Registering user: ${data.email}`);
@@ -181,7 +179,7 @@ class UserService {
 // user.controller.ts
 @Controller('/users')
 class UserController {
-    constructor(private userService: UserService) {}
+    private userService = inject(UserService);
 
     @Post('/register')
     @Validate(RegisterSchema)
@@ -213,7 +211,7 @@ export interface IRepository<T> {
 // repositories/user.repository.ts
 @Injectable()
 class UserRepository implements IRepository<User> {
-    constructor(private db: Database) {}
+    private db = inject(Database);
 
     async findAll(): Promise<User[]> {
         return this.db.query('SELECT * FROM users');
@@ -240,7 +238,7 @@ class UserRepository implements IRepository<User> {
 // Using the repository
 @Controller('/users')
 class UserController {
-    constructor(private userRepo: UserRepository) {}
+    private userRepo = inject(UserRepository);
 
     @Get('/')
     async getAll() {
@@ -296,7 +294,7 @@ Response
 ```typescript
 @Injectable()
 class AuthMiddleware implements IMiddleware {
-    constructor(private authService: AuthService) {}
+    private authService = inject(AuthService);
 
     async use(req: any, res: any, next: () => Promise<void>) {
         const token = req.headers.authorization?.split(' ')[1];
@@ -439,7 +437,7 @@ class CreateUserDTO {
 
 @Controller('/users')
 class UserController {
-    constructor(private userService: UserService) {}
+    private userService = inject(UserService);
 
     @Post('/')
     @HttpCode(201)
@@ -501,7 +499,7 @@ export class UnauthorizedError extends CustomError {
 ```typescript
 @Injectable()
 class ErrorHandlerMiddleware implements IMiddleware {
-    constructor(private logger: LoggerService) {}
+    private logger = inject(LoggerService);
 
     async use(req: any, res: any, next: () => Promise<void>) {
         try {
@@ -532,7 +530,7 @@ class ErrorHandlerMiddleware implements IMiddleware {
 // Usage in service
 @Injectable()
 class UserService {
-    constructor(private repo: UserRepository) {}
+    private repo = inject(UserRepository);
 
     async getUser(id: number): Promise<User> {
         const user = await this.repo.findById(id);
@@ -607,17 +605,15 @@ class UserDTO {
 // 3. Repository
 @Injectable()
 class UserRepository {
-    constructor(private db: Database) {}
+    private db = inject(Database);
     // CRUD operations
 }
 
 // 4. Service Layer
 @Injectable()
 class UserService {
-    constructor(
-        private repo: UserRepository,
-        private email: EmailService
-    ) {}
+    private repo = inject(UserRepository);
+    private email = inject(EmailService);
 
     async register(data: any) {
         // Business logic
@@ -639,7 +635,7 @@ class AdminMiddleware implements IMiddleware {
 @Controller('/users')
 @Middleware(AuthMiddleware)
 class UserController {
-    constructor(private userService: UserService) {}
+    private userService = inject(UserService);
 
     @Post('/register')
     @Validate(RegisterSchema)

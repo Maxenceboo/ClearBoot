@@ -310,7 +310,7 @@ class UserService {
 
 @Controller('/users')
 class UserController {
-    constructor(private userService: UserService) {}
+    private userService = inject(UserService);
 }
 ```
 
@@ -508,7 +508,7 @@ class UserService {
 
 @Controller('/users')
 class UserController {
-    constructor(private service: UserService) {}
+    private service = inject(UserService);
 
     @Get('/')
     getAll() {
@@ -606,7 +606,7 @@ class UserController {
 ```typescript
 @Injectable()
 class ApiHeaderProvider implements IHeaderProvider {
-    constructor(private config: ConfigService) {}
+    private config = inject(ConfigService);
 
     getHeaders(): Record<string, string> {
         return {
@@ -767,7 +767,7 @@ class UserService {
 
 @Controller('/users')
 class UserController {
-    constructor(private userService: UserService) {}
+    private userService = inject(UserService);
 }
 ```
 

@@ -277,7 +277,7 @@ class DatabaseService {
 
 @Injectable()
 class UserRepository {
-    constructor(private db: DatabaseService) {}
+    private db = inject(DatabaseService);
 
     findAll() {
         return this.db.query('SELECT * FROM users');
@@ -286,7 +286,7 @@ class UserRepository {
 
 @Injectable()
 class UserService {
-    constructor(private repo: UserRepository) {}
+    private repo = inject(UserRepository);
 
     getUsers() {
         return this.repo.findAll();
@@ -295,7 +295,7 @@ class UserService {
 
 @Controller('/users')
 class UserController {
-    constructor(private userService: UserService) {}
+    private userService = inject(UserService);
 
     @Get('/')
     getAllUsers() {
@@ -395,7 +395,7 @@ const CreateUserSchema = z.object({
 
 @Controller('/users')
 class UserController {
-    constructor(private userService: UserService) {}
+    private userService = inject(UserService);
 
     @Get('/')
     @Serialize(UserDTO)

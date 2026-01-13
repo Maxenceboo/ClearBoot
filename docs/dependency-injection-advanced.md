@@ -89,7 +89,7 @@ class Database {
 
 @Injectable()
 class UserRepository {
-    constructor(private db: Database) {}
+    private db = inject(Database);
 
     findUser(id: number) {
         return this.db.query(`SELECT * FROM users WHERE id = ${id}`);
@@ -98,7 +98,7 @@ class UserRepository {
 
 @Injectable()
 class UserService {
-    constructor(private repo: UserRepository) {}
+    private repo = inject(UserRepository);
 
     getUser(id: number) {
         return this.repo.findUser(id);
@@ -129,7 +129,7 @@ import { Injectable, IHeaderProvider } from 'clearboot';
 
 @Injectable()
 class ApiHeaderProvider implements IHeaderProvider {
-    constructor(private config: ConfigService) {}
+    private config = inject(ConfigService);
 
     getHeaders(): Record<string, string> {
         return {
@@ -166,7 +166,7 @@ class LoggerService {
 
 @Injectable()
 class EmailService {
-    constructor(private logger: LoggerService) {}
+    private logger = inject(LoggerService);
 
     send(to: string, subject: string) {
         this.logger.log(`Sending email to ${to}`);
@@ -213,7 +213,7 @@ class ConfigService {
 
 @Injectable()
 class AuthService {
-    constructor(private config: ConfigService) {}
+    private config = inject(ConfigService);
 
     authenticate(apiKey: string): boolean {
         return apiKey === this.config.get('apiKey');
@@ -222,7 +222,7 @@ class AuthService {
 
 @Controller('/api')
 class ApiController {
-    constructor(private auth: AuthService) {}
+    private auth = inject(AuthService);
 
     @Get('/secure')
     @Middleware(AuthMiddleware)
@@ -284,7 +284,7 @@ import { globalContainer } from 'clearboot';
 
 @Injectable()
 class AnalyticsService {
-    constructor(private logger?: LoggerService) {}
+    private logger = inject(LoggerService) || undefined;
 
     track(event: string) {
         this.logger?.log(`Event: ${event}`);
@@ -432,7 +432,7 @@ class UserService {
 
 @Controller('/users')
 class UserController {
-    constructor(private userService: UserService) {}
+    private userService = inject(UserService);
 
     @Get('/:id')
     getUser(@Param('id') id: string) {
@@ -458,7 +458,7 @@ class Database {}
 
 @Injectable()
 class UserService {
-    constructor(private db: Database) {}
+    private db = inject(Database);
 }
 
 // Use: const service = inject(UserService);

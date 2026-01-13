@@ -111,7 +111,7 @@ class UserService {
 
 @Controller('/users')
 class UserController {
-    constructor(private userService: UserService) {}
+    private userService = inject(UserService);
 }
 ```
 
@@ -254,14 +254,14 @@ class UserRepository {
 // Service
 @Injectable()
 class UserService {
-    constructor(private repo: UserRepository) {}
+    private repo = inject(UserRepository);
     async getUser(id: number) { }
 }
 
 // Controller
 @Controller('/users')
 class UserController {
-    constructor(private service: UserService) {}
+    private userService = inject(UserService);
     
     @Get('/:id')
     async getUser(@Param('id') id: string) {

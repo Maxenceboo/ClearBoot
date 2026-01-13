@@ -149,7 +149,7 @@ class AuthService {
 
 @Injectable()
 class SecurityHeaderProvider implements IHeaderProvider {
-    constructor(private authService: AuthService) {}
+    private authService = inject(AuthService);
     
     getHeaders() {
         return {

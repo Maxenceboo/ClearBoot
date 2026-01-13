@@ -478,7 +478,7 @@ class UserService {
 
 @Controller('/users')
 class UserController {
-    constructor(private userService: UserService) {}
+    private userService = inject(UserService);
 
     @Get('/:id')
     getUser(@Param('id') id: string) {
@@ -645,7 +645,7 @@ class ProductService {
 // Controller
 @Controller('/products')
 class ProductController {
-    constructor(private service: ProductService) {}
+    private service = inject(ProductService);
 
     @Get('/')
     @Serialize(ProductDTO)
