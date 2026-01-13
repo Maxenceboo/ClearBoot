@@ -27,6 +27,63 @@ export class AuthMiddleware implements IMiddleware {
 
 ```
 
+## Middlewares Intégrés
+
+ClearBoot fournit des middlewares prêts à l'emploi pour les besoins courants :
+
+### HelmetMiddleware 🛡️
+
+Ajoute des headers de sécurité HTTP (protection XSS, clickjacking, etc.).
+
+```typescript
+import { HelmetMiddleware } from 'clearboot';
+
+ClearBoot.create({
+  globalMiddlewares: [HelmetMiddleware]
+});
+```
+
+**Headers ajoutés :**
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: SAMEORIGIN`
+- `X-XSS-Protection: 1; mode=block`
+- `X-DNS-Prefetch-Control: off`
+- `X-Download-Options: noopen`
+
+### LoggerMiddleware 📝
+
+Logue toutes les requêtes avec la méthode, l'URL, le status et la durée.
+
+```typescript
+import { LoggerMiddleware } from 'clearboot';
+
+ClearBoot.create({
+  globalMiddlewares: [LoggerMiddleware]
+});
+
+// Sortie : 📝 [GET] /users - 200 (45ms)
+```
+
+### RateLimitMiddleware ⏱️
+
+Limite le nombre de requêtes par IP (100 req/15min par défaut).
+
+```typescript
+import { RateLimitMiddleware } from 'clearboot';
+
+ClearBoot.create({
+  globalMiddlewares: [RateLimitMiddleware]
+});
+
+// Si dépassement : 429 Too Many Requests
+```
+
+**Headers ajoutés :**
+- `X-RateLimit-Limit: 100`
+- `X-RateLimit-Remaining: 95`
+
+---
+
 ## Appliquer un Middleware
 
 ### 1. Portée Globale (Global Scope)
@@ -34,9 +91,15 @@ export class AuthMiddleware implements IMiddleware {
 S'applique à **toutes** les routes de l'application.
 
 ```typescript
+import { HelmetMiddleware, LoggerMiddleware, RateLimitMiddleware } from 'clearboot';
+
 ClearBoot.create({
   port: 3000,
-  globalMiddlewares: [LoggerMiddleware]
+  globalMiddlewares: [
+    HelmetMiddleware,
+    LoggerMiddleware,
+    RateLimitMiddleware
+  ]
 });
 
 ```

@@ -15,6 +15,22 @@ ClearBoot intègre `dotenv` automatiquement.
 
 2.  Le framework utilisera automatiquement `PORT` si aucun port n'est spécifié dans le code.
 
+## 1.1. Sécurité du Body Parser
+
+ClearBoot protège automatiquement votre application contre les attaques DoS :
+
+- **Limite de taille** : 1MB par défaut pour les requêtes JSON
+- **Protection JSON** : Gestion automatique des JSON malformés (pas de crash)
+- **Erreurs explicites** : `PayloadTooLargeException` (413) ou `BadRequestException` (400)
+
+```typescript
+// Si un client envoie plus de 1MB :
+// ⛔ 413 Payload Too Large
+
+// Si un client envoie du JSON invalide :
+// ⛔ 400 Bad Request - Invalid JSON format
+```
+
 ## 2. Options de Démarrage
 
 Voici toutes les options disponibles lors de la création de l'application :

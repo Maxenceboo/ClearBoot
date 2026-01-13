@@ -7,10 +7,11 @@ ClearBoot possède une couche de gestion d'exceptions intégrée. Au lieu de man
 
 | Classe | Status HTTP | Description |
 | :--- | :--- | :--- |
-| `BadRequestException` | 400 | Données invalides |
+| `BadRequestException` | 400 | Données invalides (JSON malformé, etc.) |
 | `UnauthorizedException` | 401 | Authentification requise |
 | `ForbiddenException` | 403 | Accès interdit |
 | `NotFoundException` | 404 | Ressource introuvable |
+| `PayloadTooLargeException` | 413 | Body trop volumineux (> 1MB) |
 | `InternalServerErrorException` | 500 | Erreur serveur |
 
 ## Utilisation

@@ -16,9 +16,10 @@
 - 💉 **Dependency Injection** : Conteneur IoC intégré strict et performant.
 - 🎨 **Decorators-First** : `@Controller`, `@Get`, `@Middleware`, `@Validate`...
 - 🛡 **Middlewares Robustes** : Système de pipeline complet (Global, Contrôleur, Route).
+- 🔒 **Sécurité Intégrée** : Helmet (headers sécurisés), Rate Limiting, CORS, Body Parser sécurisé (limite 1MB).
 - ✅ **Validation Intégrée** : Support natif de **Zod** via décorateurs.
 - 🔌 **Zéro Dépendance Express** : Construit sur le module `http` natif de Node.js.
-- 🧪 **Testable** : Conçu pour le TDD (Unit & Integration ready).
+- 🧪 **Testable** : Conçu pour le TDD (Unit & Integration ready, 100% coverage).
 
 ---
 
@@ -105,15 +106,18 @@ Distribué sous la licence MIT.
 
 # 📝 Roadmap ClearBoot v2
 
-## 🚨 Phase 1 : Sécurité & Stabilité (URGENT)
+## ✅ Phase 1 : Sécurité & Stabilité (TERMINÉE)
 
 *L'objectif est de boucher les trous de sécurité avant d'ajouter des fonctionnalités.*
 
-* [ ] **Sécuriser le Body Parser** : Ajouter une limite de taille (ex: 1MB) pour éviter les attaques DoS (Denial of Service) par saturation de la mémoire.
-* [ ] **Gestion Safe du JSON** : Empêcher le serveur de crasher si un utilisateur envoie un JSON mal formé (ajout d'un `try-catch` dans le parser).
-* [ ] **Headers de Sécurité** : Créer un middleware global (style "Helmet") pour ajouter les headers HTTP de sécurité (`X-Content-Type-Options`, `X-Frame-Options`, etc.).
+* [x] **Sécuriser le Body Parser** : Limite de taille (1MB) pour éviter les attaques DoS.
+* [x] **Gestion Safe du JSON** : Le serveur ne crash plus sur du JSON mal formé (try-catch intégré).
+* [x] **Headers de Sécurité** : Middleware Helmet complet (`X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, etc.).
+* [x] **Rate Limiting** : Middleware anti-spam pour limiter les requêtes.
+* [x] **CORS** : Support de la configuration CORS intégrée.
+* [x] **Logger** : Middleware de logging des requêtes.
 
-## 🏗️ Phase 2 : Cycle de Vie & Base de Données
+## 🏗️ Phase 2 : Cycle de Vie & Base de Données (EN COURS)
 
 *L'objectif est de gérer proprement les connexions externes (DB).*
 

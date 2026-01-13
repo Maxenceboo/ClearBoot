@@ -6,3 +6,4 @@ export * from './http/response';
 export * from './common/exceptions';
 export * from './middlewares/helmet.middleware';
 export * from './middlewares/logger.middleware';
+export * from './middlewares/rate-limit.middleware';
