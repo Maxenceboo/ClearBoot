@@ -16,7 +16,8 @@
     "start": "node dist/app/main.js",
     "test": "jest",
     "test:cov": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "sonar": "sonar-scanner"
   },
   "repository": {
     "type": "git",
