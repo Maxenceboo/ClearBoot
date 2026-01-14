@@ -1,25 +1,22 @@
 import * as http from 'http';
-import { globalContainer } from '../di/container';
 import { ParamType } from '../common/types';
 import { matchPath } from '../router/path-matcher';
-import { parseBody, parseQueryParams, isJson, parseCookies, parseFormData } from '../http/request-utils';
+import { parseBody, parseQueryParams, parseCookies, parseFormData } from '../http/request-utils';
 import { parseMultipart, MultipartResult } from '../http/multipart-parser';
 import { ControllerMetadata } from './metadata-scanner';
-import { MiddlewareClass, IMiddleware } from '../common/interfaces';
+import { MiddlewareClass } from '../common/interfaces';
 import { extendResponse } from '../http/response';
-import { HttpException } from '../common/exceptions';
 import { applyCors, CorsOptions } from '../http/cors';
+import { ParameterInjector, RequestExecutor, MiddlewareDispatcher } from './handlers';
 
 /**
  * Core HTTP request handler.
- * Routes requests to controllers, executes middlewares, handles validation,
- * injects parameters, and manages error responses.
+ * Orchestrates routing, middleware execution, and request processing.
  */
 export class RequestHandler {
     /**
      * Handle incoming HTTP request.
-     * Matches route, executes middleware chain, validates input, injects parameters,
-     * and calls controller handler.
+     * Matches routes, executes middlewares, and calls appropriate controller handler.
      * 
      * @param req - Incoming HTTP request
      * @param res - HTTP server response
@@ -37,155 +34,124 @@ export class RequestHandler {
         const response = extendResponse(res);
         applyCors(req, response, corsOptions);
 
+        // Handle OPTIONS requests for CORS preflight
         if (req.method === 'OPTIONS') {
             response.status(204).send('');
             return;
         }
 
+        // Parse URL and extract path
         const parsedUrl = new URL(req.url || '/', `http://${req.headers.host}`);
         const urlPath = parsedUrl.pathname.replace(/\/$/, '') || '/';
         const method = req.method;
 
+        // Try to find matching route
         for (const ctrl of controllers) {
             for (const route of ctrl.routes) {
                 const routeParams = matchPath(route.fullPath, urlPath);
 
                 if (routeParams && route.method === method) {
                     try {
+                        // Collect all middlewares
                         const ctrlMiddlewares = Reflect.getMetadata('ctrl_middlewares', ctrl.instance.constructor) || [];
                         const routeMiddlewares = Reflect.getMetadata('route_middlewares', ctrl.instance, route.handlerName) || [];
                         const allMiddlewares = [...globalMiddlewares, ...ctrlMiddlewares, ...routeMiddlewares];
 
-                        const executeHandler = async () => {
-                            const queryParams = parseQueryParams(parsedUrl);
-                            const cookies = parseCookies(req);
-                            let bodyParams = {};
-                            let files: MultipartResult['files'] = [];
+                        // Execute middlewares and handler
+                        await MiddlewareDispatcher.dispatch(
+                            allMiddlewares,
+                            req,
+                            response,
+                            async () => {
+                                // Parse request data
+                                const queryParams = parseQueryParams(parsedUrl);
+                                const cookies = parseCookies(req);
+                                let bodyParams = {};
+                                let files: MultipartResult['files'] = [];
 
-                            // Parse body based on Content-Type header
-                            // Supports: multipart/form-data (file upload), application/x-www-form-urlencoded, application/json
-                            if (['POST', 'PUT', 'PATCH'].includes(method || '')) {
-                                const contentType = req.headers['content-type'] || '';
-                                
-                                if (contentType.includes('multipart/form-data')) {
-                                    const multipart = await parseMultipart(req);
-                                    bodyParams = multipart.fields;
-                                    files = multipart.files;
-                                } else if (contentType.includes('application/x-www-form-urlencoded')) {
-                                    bodyParams = await parseFormData(req);
-                                } else if (contentType.includes('application/json') || !contentType) {
-                                    bodyParams = await parseBody(req);
+                                await RequestHandler.parseRequestBody(req, method, bodyParams, files);
+
+                                // Attach files to request
+                                (req as any).files = files;
+
+                                // Validate input
+                                const schema = Reflect.getMetadata('validation_schema', ctrl.instance, route.handlerName);
+                                if (schema) {
+                                    const result = schema.safeParse(bodyParams);
+                                    if (!result.success) {
+                                        response.status(400).json({
+                                            status: 400,
+                                            error: "Validation Failed",
+                                            details: result.error.format()
+                                        });
+                                        return;
+                                    }
+                                    bodyParams = result.data;
                                 }
+
+                                // Inject parameters and execute handler
+                                const args = ParameterInjector.buildArguments(
+                                    route.paramsMeta,
+                                    req,
+                                    response,
+                                    bodyParams,
+                                    queryParams,
+                                    routeParams,
+                                    cookies
+                                );
+
+                                await RequestExecutor.executeHandler(
+                                    ctrl.instance,
+                                    route.handlerName,
+                                    args,
+                                    response
+                                );
                             }
-
-                            // Attach uploaded files to request for access via @Req()
-                            (req as any).files = files;
-
-                            // 🛡️ Input Validation using Zod schema (from @UseValidation decorator)
-                            const schema = Reflect.getMetadata('validation_schema', ctrl.instance, route.handlerName);
-                            if (schema) {
-                                const result = schema.safeParse(bodyParams);
-                                if (!result.success) {
-                                    // Return validation errors in consistent format
-                                    return response.status(400).json({
-                                        status: 400,
-                                        error: "Validation Failed",
-                                        details: result.error.format()
-                                    });
-                                }
-                                // Use validated and type-casted data
-                                bodyParams = result.data;
-                            }
-
-                            // Parameter injection based on decorators (@Body, @Param, @Query, etc.)
-                            let args: any[] = [];
-                            if (route.paramsMeta.length > 0) {
-                                // Build arguments array from decorator metadata
-                                args = new Array(route.paramsMeta.length);
-                                route.paramsMeta.forEach((p: any) => {
-                                    let val: any = null;
-                                    // Resolve value based on parameter type
-                                    if (p.type === ParamType.REQ) val = req;
-                                    else if (p.type === ParamType.RES) val = response;
-                                    else if (p.type === ParamType.BODY) val = bodyParams;
-                                    else if (p.type === ParamType.QUERY) val = queryParams;
-                                    else if (p.type === ParamType.PARAM) val = routeParams;
-                                    else if (p.type === ParamType.COOKIE) val = cookies;
-
-                                    // Extract specific property if key provided (e.g., @Param('id'))
-                                    if (p.key && val && typeof val === 'object') args[p.index] = val[p.key];
-                                    else args[p.index] = val;
-                                });
-                            } else {
-                                // Auto-merge: if no decorators, merge all params into single object
-                                args = [{ ...queryParams, ...bodyParams, ...routeParams }];
-                            }
-
-                            // Appel de la méthode du contrôleur
-                            const result = await ctrl.instance[route.handlerName](...args);
-
-                            if (response.writableEnded) return;
-
-                            const customHeaders = Reflect.getMetadata('response_headers', ctrl.instance, route.handlerName) || {};
-                            Object.keys(customHeaders).forEach(key => response.setHeader(key, customHeaders[key]));
-
-                            const statusCode = Reflect.getMetadata('http_code', ctrl.instance, route.handlerName) || 200;
-
-                            if (typeof result === 'object') response.status(statusCode).json(result);
-                            else response.status(statusCode).send(String(result));
-                        };
-
-                        // Middleware dispatch chain (Koa-style composition)
-                        // Executes: Global -> Controller -> Route middlewares, then handler
-                        let index = -1;
-                        const dispatch = async (i: number) => {
-                            // Prevent calling same middleware twice
-                            if (i <= index) return;
-                            index = i;
-
-                            // All middlewares executed, call final handler
-                            if (i === allMiddlewares.length) {
-                                await executeHandler();
-                                return;
-                            }
-
-                            // Resolve and execute current middleware
-                            const MiddlewareClass = allMiddlewares[i];
-                            const instance = globalContainer.resolve(MiddlewareClass) as IMiddleware;
-
-                            try {
-                                // Call middleware with next() function to continue chain
-                                await instance.use(req, response, () => dispatch(i + 1));
-                            } catch (err) {
-                                throw err;
-                            }
-                        };
-
-                        await dispatch(0);
+                        );
                         return;
 
                     } catch (e: any) {
-                        // Error handling: HTTP exceptions, validation errors, and internal errors
-                        if (!response.writableEnded) {
-                            const status = e.status || 500;
-                            const message = isJson(e.message) ? JSON.parse(e.message) : { error: e.message };
-
-                            // Log internal server errors
-                            if (status === 500) console.error("🔥 INTERNAL ERROR:", e);
-
-                            // Return standardized error response
-                            response.status(status).json({
-                                statusCode: status,
-                                ...(typeof message === 'object' ? message : { message }),
-                                timestamp: new Date().toISOString()
-                            });
-                        }
+                        RequestExecutor.handleError(e, response);
                         return;
                     }
                 }
             }
         }
 
-        response.status(404).json({ statusCode: 404, error: "Route not found" });
+        // Route not found
+        RequestExecutor.handle404(response);
+    }
+
+    /**
+     * Parse request body based on Content-Type.
+     * 
+     * @param req - HTTP request
+     * @param method - HTTP method
+     * @param bodyParams - Object to populate with parsed body
+     * @param files - Array to populate with uploaded files
+     */
+    private static async parseRequestBody(
+        req: http.IncomingMessage,
+        method: string | undefined,
+        bodyParams: any,
+        files: any[]
+    ): Promise<void> {
+        if (!['POST', 'PUT', 'PATCH'].includes(method || '')) {
+            return;
+        }
+
+        const contentType = req.headers['content-type'] || '';
+
+        if (contentType.includes('multipart/form-data')) {
+            const multipart = await parseMultipart(req);
+            Object.assign(bodyParams, multipart.fields);
+            files.push(...multipart.files);
+        } else if (contentType.includes('application/x-www-form-urlencoded')) {
+            const formData = await parseFormData(req);
+            Object.assign(bodyParams, formData);
+        } else if (contentType.includes('application/json') || !contentType) {
+            const jsonData = await parseBody(req);
+            Object.assign(bodyParams, jsonData);
+        }
     }
 }

@@ -11,8 +11,10 @@
  * - 10MB per file
  * - 50MB total upload size
  * 
- * Actual implementations are in focused modules under multipart/ directory.
- * @see multipart/ - All multipart handling
+ * Actual implementations are in focused modules:
+ * @see multipart-types.ts - Type definitions (UploadedFile, MultipartResult)
+ * @see multipart-processor.ts - Parsing and validation logic
  */
 
-export * from './multipart';
+export { parseMultipart } from './multipart-processor';
+export { UploadedFile, MultipartResult } from './multipart-types';
