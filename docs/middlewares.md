@@ -1,4 +1,3 @@
-
 # 🛡 Middlewares
 
 Les Middlewares dans **ClearBoot** sont des classes qui s'interposent avant l'exécution de vos contrôleurs. Ils sont idéaux pour le logging, l'authentification, la gestion CORS, etc.
@@ -8,15 +7,14 @@ Les Middlewares dans **ClearBoot** sont des classes qui s'interposent avant l'ex
 Un middleware est une classe décorée par `@Injectable` qui implémente l'interface `IMiddleware`.
 
 ```typescript
-import { Injectable, IMiddleware, ClearResponse } from '../lib';
-import * as http from 'http';
+import { Injectable, IMiddleware, ClearResponse } from "../lib";
+import * as http from "http";
 
 @Injectable()
 export class AuthMiddleware implements IMiddleware {
   use(req: http.IncomingMessage, res: ClearResponse, next: () => void) {
-    
     // Vérification
-    if (req.headers.authorization === 'secret') {
+    if (req.headers.authorization === "secret") {
       next(); // ✅ On passe à la suite
     } else {
       // ⛔ On bloque avec la syntaxe fluide
@@ -24,7 +22,6 @@ export class AuthMiddleware implements IMiddleware {
     }
   }
 }
-
 ```
 
 ## Middlewares Intégrés
@@ -36,14 +33,15 @@ ClearBoot fournit des middlewares prêts à l'emploi pour les besoins courants :
 Ajoute des headers de sécurité HTTP (protection XSS, clickjacking, etc.).
 
 ```typescript
-import { HelmetMiddleware } from 'clearboot';
+import { HelmetMiddleware } from "clearboot";
 
 ClearBoot.create({
-  globalMiddlewares: [HelmetMiddleware]
+  globalMiddlewares: [HelmetMiddleware],
 });
 ```
 
 **Headers ajoutés :**
+
 - `X-Content-Type-Options: nosniff`
 - `X-Frame-Options: SAMEORIGIN`
 - `X-XSS-Protection: 1; mode=block`
@@ -55,10 +53,10 @@ ClearBoot.create({
 Logue toutes les requêtes avec la méthode, l'URL, le status et la durée.
 
 ```typescript
-import { LoggerMiddleware } from 'clearboot';
+import { LoggerMiddleware } from "clearboot";
 
 ClearBoot.create({
-  globalMiddlewares: [LoggerMiddleware]
+  globalMiddlewares: [LoggerMiddleware],
 });
 
 // Sortie : 📝 [GET] /users - 200 (45ms)
@@ -69,16 +67,17 @@ ClearBoot.create({
 Limite le nombre de requêtes par IP (100 req/15min par défaut).
 
 ```typescript
-import { RateLimitMiddleware } from 'clearboot';
+import { RateLimitMiddleware } from "clearboot";
 
 ClearBoot.create({
-  globalMiddlewares: [RateLimitMiddleware]
+  globalMiddlewares: [RateLimitMiddleware],
 });
 
 // Si dépassement : 429 Too Many Requests
 ```
 
 **Headers ajoutés :**
+
 - `X-RateLimit-Limit: 100`
 - `X-RateLimit-Remaining: 95`
 
@@ -91,17 +90,16 @@ ClearBoot.create({
 S'applique à **toutes** les routes de l'application.
 
 ```typescript
-import { HelmetMiddleware, LoggerMiddleware, RateLimitMiddleware } from 'clearboot';
+import {
+  HelmetMiddleware,
+  LoggerMiddleware,
+  RateLimitMiddleware,
+} from "clearboot";
 
 ClearBoot.create({
   port: 3000,
-  globalMiddlewares: [
-    HelmetMiddleware,
-    LoggerMiddleware,
-    RateLimitMiddleware
-  ]
+  globalMiddlewares: [HelmetMiddleware, LoggerMiddleware, RateLimitMiddleware],
 });
-
 ```
 
 ### 2. Portée Contrôleur (Controller Scope)

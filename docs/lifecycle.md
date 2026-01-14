@@ -13,17 +13,17 @@ Le hook `onModuleInit()` s'exécute **AVANT** que le serveur ne commence à éco
 ### Exemple Basique
 
 ```typescript
-import { ClearBoot } from 'clearboot';
+import { ClearBoot } from "clearboot";
 
 const server = await ClearBoot.create({
-    port: 3000,
-    
-    onModuleInit: async () => {
-        console.log('⏳ Initialisation...');
-        // Votre logique async ici
-        await someAsyncSetup();
-        console.log('✅ Prêt!');
-    }
+  port: 3000,
+
+  onModuleInit: async () => {
+    console.log("⏳ Initialisation...");
+    // Votre logique async ici
+    await someAsyncSetup();
+    console.log("✅ Prêt!");
+  },
 });
 ```
 
@@ -32,21 +32,21 @@ const server = await ClearBoot.create({
 ```typescript
 @Injectable()
 class AppInitService implements IModuleInit {
-    async init() {
-        console.log('🔧 Init applicatif...');
-    }
+  async init() {
+    console.log("🔧 Init applicatif...");
+  }
 }
 
 @Injectable()
 class MetricsInitService implements IModuleInit {
-    async init() {
-        console.log('📈 Init métriques...');
-    }
+  async init() {
+    console.log("📈 Init métriques...");
+  }
 }
 
 await ClearBoot.create({
-    port: 3000,
-    onModuleInit: [AppInitService, MetricsInitService]
+  port: 3000,
+  onModuleInit: [AppInitService, MetricsInitService],
 });
 ```
 
@@ -55,55 +55,55 @@ await ClearBoot.create({
 ```typescript
 @Injectable()
 class DatabaseService {
-    private connection: any;
+  private connection: any;
 
-    async connect() {
-        console.log('📡 Connexion à PostgreSQL...');
-        this.connection = await postgres.connect({
-            host: process.env.DB_HOST,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_NAME
-        });
-        console.log('✅ Connecté à PostgreSQL');
-    }
+  async connect() {
+    console.log("📡 Connexion à PostgreSQL...");
+    this.connection = await postgres.connect({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+    });
+    console.log("✅ Connecté à PostgreSQL");
+  }
 
-    async disconnect() {
-        if (this.connection) {
-            await this.connection.close();
-        }
+  async disconnect() {
+    if (this.connection) {
+      await this.connection.close();
     }
+  }
 
-    async query(sql: string, params: any[] = []) {
-        return this.connection.query(sql, params);
-    }
+  async query(sql: string, params: any[] = []) {
+    return this.connection.query(sql, params);
+  }
 }
 
 // Application avec DB
 async function bootstrap() {
-    const db = inject(DatabaseService);
-    
-    const server = await ClearBoot.create({
-        port: 3000,
-        
-        onModuleInit: async () => {
-            console.log('🔧 Initialisation de la DB...');
-            await db.connect();
-            
-            // Vérifier la connexion
-            try {
-                await db.query('SELECT 1');
-                console.log('✅ Base de données opérationnelle');
-            } catch (error) {
-                throw new Error('❌ Impossible de connexion à la DB');
-            }
-        }
-    });
+  const db = inject(DatabaseService);
+
+  const server = await ClearBoot.create({
+    port: 3000,
+
+    onModuleInit: async () => {
+      console.log("🔧 Initialisation de la DB...");
+      await db.connect();
+
+      // Vérifier la connexion
+      try {
+        await db.query("SELECT 1");
+        console.log("✅ Base de données opérationnelle");
+      } catch (error) {
+        throw new Error("❌ Impossible de connexion à la DB");
+      }
+    },
+  });
 }
 
-bootstrap().catch(err => {
-    console.error('💥 Erreur critique:', err.message);
-    process.exit(1);
+bootstrap().catch((err) => {
+  console.error("💥 Erreur critique:", err.message);
+  process.exit(1);
 });
 ```
 
@@ -123,19 +123,19 @@ ClearBoot gère automatiquement les signaux **SIGTERM** et **SIGINT** (Ctrl+C) p
 
 ```typescript
 async function bootstrap() {
-    const db = inject(DatabaseService);
-    
-    const server = await ClearBoot.create({
-        port: 3000,
-        onModuleInit: async () => await db.connect()
-    });
+  const db = inject(DatabaseService);
 
-    // Si besoin de cleanup manuel en plus
-    process.on('SIGTERM', async () => {
-        console.log('Fermeture gracieuse...');
-        await db.disconnect(); // Cleanup personnalisé
-        server.close(() => process.exit(0));
-    });
+  const server = await ClearBoot.create({
+    port: 3000,
+    onModuleInit: async () => await db.connect(),
+  });
+
+  // Si besoin de cleanup manuel en plus
+  process.on("SIGTERM", async () => {
+    console.log("Fermeture gracieuse...");
+    await db.disconnect(); // Cleanup personnalisé
+    server.close(() => process.exit(0));
+  });
 }
 ```
 
@@ -148,37 +148,37 @@ async function bootstrap() {
 ### TypeORM
 
 ```typescript
-import { DataSource } from 'typeorm';
-import { ClearBoot } from 'clearboot';
+import { DataSource } from "typeorm";
+import { ClearBoot } from "clearboot";
 
 const AppDataSource = new DataSource({
-    type: 'postgres',
-    host: process.env.DB_HOST,
-    port: 5432,
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    entities: [User, Post, Comment],
-    synchronize: true
+  type: "postgres",
+  host: process.env.DB_HOST,
+  port: 5432,
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  entities: [User, Post, Comment],
+  synchronize: true,
 });
 
 async function bootstrap() {
-    // Initialiser TypeORM
-    await AppDataSource.initialize();
-    console.log('✅ TypeORM initialisé');
+  // Initialiser TypeORM
+  await AppDataSource.initialize();
+  console.log("✅ TypeORM initialisé");
 
-    const server = await ClearBoot.create({
-        port: 3000,
-        onModuleInit: async () => {
-            console.log('🚀 Application démarrée avec TypeORM');
-        }
-    });
+  const server = await ClearBoot.create({
+    port: 3000,
+    onModuleInit: async () => {
+      console.log("🚀 Application démarrée avec TypeORM");
+    },
+  });
 
-    // Cleanup
-    process.on('SIGTERM', async () => {
-        await AppDataSource.destroy();
-        server.close(() => process.exit(0));
-    });
+  // Cleanup
+  process.on("SIGTERM", async () => {
+    await AppDataSource.destroy();
+    server.close(() => process.exit(0));
+  });
 }
 
 bootstrap();
@@ -187,26 +187,26 @@ bootstrap();
 ### Prisma
 
 ```typescript
-import { PrismaClient } from '@prisma/client';
-import { ClearBoot } from 'clearboot';
+import { PrismaClient } from "@prisma/client";
+import { ClearBoot } from "clearboot";
 
 const prisma = new PrismaClient();
 
 async function bootstrap() {
-    const server = await ClearBoot.create({
-        port: 3000,
-        onModuleInit: async () => {
-            console.log('🔗 Vérification de la connexion Prisma...');
-            await prisma.$queryRaw`SELECT 1`;
-            console.log('✅ Prisma prêt');
-        }
-    });
+  const server = await ClearBoot.create({
+    port: 3000,
+    onModuleInit: async () => {
+      console.log("🔗 Vérification de la connexion Prisma...");
+      await prisma.$queryRaw`SELECT 1`;
+      console.log("✅ Prisma prêt");
+    },
+  });
 
-    // Cleanup
-    process.on('SIGINT', async () => {
-        await prisma.$disconnect();
-        process.exit(0);
-    });
+  // Cleanup
+  process.on("SIGINT", async () => {
+    await prisma.$disconnect();
+    process.exit(0);
+  });
 }
 
 bootstrap();
@@ -215,28 +215,28 @@ bootstrap();
 ### MongoDB (Native Driver)
 
 ```typescript
-import { MongoClient } from 'mongodb';
-import { ClearBoot } from 'clearboot';
+import { MongoClient } from "mongodb";
+import { ClearBoot } from "clearboot";
 
 const client = new MongoClient(process.env.MONGODB_URI);
 
 async function bootstrap() {
-    const server = await ClearBoot.create({
-        port: 3000,
-        onModuleInit: async () => {
-            console.log('🗄️  Connexion à MongoDB...');
-            await client.connect();
-            const db = client.db('myapp');
-            const ping = await db.admin().ping();
-            console.log('✅ MongoDB connecté');
-        }
-    });
+  const server = await ClearBoot.create({
+    port: 3000,
+    onModuleInit: async () => {
+      console.log("🗄️  Connexion à MongoDB...");
+      await client.connect();
+      const db = client.db("myapp");
+      const ping = await db.admin().ping();
+      console.log("✅ MongoDB connecté");
+    },
+  });
 
-    // Cleanup
-    process.on('SIGTERM', async () => {
-        await client.close();
-        server.close(() => process.exit(0));
-    });
+  // Cleanup
+  process.on("SIGTERM", async () => {
+    await client.close();
+    server.close(() => process.exit(0));
+  });
 }
 
 bootstrap();
@@ -247,30 +247,30 @@ bootstrap();
 ## 🧪 Tests avec Lifecycle Hooks
 
 ```typescript
-describe('Application avec DB', () => {
-    let server: http.Server;
-    let db: DatabaseService;
+describe("Application avec DB", () => {
+  let server: http.Server;
+  let db: DatabaseService;
 
-    beforeAll(async () => {
-        db = inject(DatabaseService);
-        
-        server = await ClearBoot.create({
-            port: 0, // Port aléatoire pour tests
-            onModuleInit: async () => {
-                await db.connectToTestDB(); // DB test, pas production!
-            }
-        });
-    });
+  beforeAll(async () => {
+    db = inject(DatabaseService);
 
-    afterAll(async () => {
-        await db.disconnect();
-        server.close();
+    server = await ClearBoot.create({
+      port: 0, // Port aléatoire pour tests
+      onModuleInit: async () => {
+        await db.connectToTestDB(); // DB test, pas production!
+      },
     });
+  });
 
-    test('Les données de la DB sont accessibles', async () => {
-        const users = await db.query('SELECT * FROM users');
-        expect(users).toBeDefined();
-    });
+  afterAll(async () => {
+    await db.disconnect();
+    server.close();
+  });
+
+  test("Les données de la DB sont accessibles", async () => {
+    const users = await db.query("SELECT * FROM users");
+    expect(users).toBeDefined();
+  });
 });
 ```
 
@@ -294,13 +294,13 @@ const server = await ClearBoot.create({...});
 ```typescript
 // ❌ MAUVAIS
 onModuleInit: () => {
-    setTimeout(() => db.connect(), 1000); // Pas attendu!
-}
+  setTimeout(() => db.connect(), 1000); // Pas attendu!
+};
 
 // ✅ BON
 onModuleInit: async () => {
-    await db.connect(); // Attendu correctement
-}
+  await db.connect(); // Attendu correctement
+};
 ```
 
 ### ❌ Lancer une exception non capturée
@@ -308,21 +308,21 @@ onModuleInit: async () => {
 ```typescript
 // ❌ MAUVAIS - L'exception n'est pas propagée
 const server = await ClearBoot.create({
-    onModuleInit: async () => {
-        throw new Error('DB Error'); // Pas capturé!
-    }
+  onModuleInit: async () => {
+    throw new Error("DB Error"); // Pas capturé!
+  },
 });
 
 // ✅ BON
 try {
-    const server = await ClearBoot.create({
-        onModuleInit: async () => {
-            await db.connect(); // Exception propagée
-        }
-    });
+  const server = await ClearBoot.create({
+    onModuleInit: async () => {
+      await db.connect(); // Exception propagée
+    },
+  });
 } catch (error) {
-    console.error('Erreur au démarrage:', error);
-    process.exit(1);
+  console.error("Erreur au démarrage:", error);
+  process.exit(1);
 }
 ```
 
@@ -362,6 +362,7 @@ try {
 ## 🚀 Prochain: Phase 3
 
 La prochaine phase ajoutera:
+
 - Support Cookies (`req.cookies`, `res.cookie()`)
 - Support Form-Data (`application/x-www-form-urlencoded`)
 - Upload de Fichiers (`multipart/form-data`)

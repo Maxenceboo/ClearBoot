@@ -1,4 +1,3 @@
-
 # 🏗 Architecture ClearBoot
 
 ClearBoot suit une architecture modulaire et stratifiée.

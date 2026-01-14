@@ -1,6 +1,7 @@
 # Réorganisation Architecturale Majeure - ClearBoot v2
 
 ## 🎯 Objectif
+
 Réorganiser le code en créant une structure de dossiers claire et modulaire, en divisant les fichiers volumineux et en regroupant les fonctionnalités connexes.
 
 ---
@@ -10,7 +11,9 @@ Réorganiser le code en créant une structure de dossiers claire et modulaire, e
 ### 1. Nouvelle Structure de Dossiers
 
 #### **a) http/parsing/** (NOUVEAU)
+
 Regroupe tous les utilitaires de parsing HTTP
+
 ```
 http/parsing/
 ├── index.ts              ← Barrel export
@@ -20,6 +23,7 @@ http/parsing/
 ```
 
 **Avantages**:
+
 - Séparation claire parsing JSON / form / query / cookies
 - Import groupé: `import { ... } from './parsing'`
 - Modularité: chaque parser peut être testé indépendamment
@@ -27,7 +31,9 @@ http/parsing/
 ---
 
 #### **b) http/multipart/** (NOUVEAU)
+
 Regroupe la gestion complète du multipart/form-data
+
 ```
 http/multipart/
 ├── index.ts              ← Barrel export
@@ -36,6 +42,7 @@ http/multipart/
 ```
 
 **Avantages**:
+
 - Types séparés de l'implémentation
 - Parser complexe isolé
 - API claire via barrel export
@@ -43,7 +50,9 @@ http/multipart/
 ---
 
 #### **c) core/handlers/** (NOUVEAU)
+
 Regroupe les utilitaires de gestion des requêtes
+
 ```
 core/handlers/
 ├── index.ts                   ← Barrel export
@@ -53,6 +62,7 @@ core/handlers/
 ```
 
 **Avantages**:
+
 - Responsabilités clairement séparées
 - Injection / Exécution / Middleware indépendants
 - Composition facile dans request-handler.ts
@@ -60,7 +70,9 @@ core/handlers/
 ---
 
 #### **d) core/lifecycle/** (NOUVEAU)
+
 Regroupe la gestion du cycle de vie de l'application
+
 ```
 core/lifecycle/
 ├── index.ts           ← Barrel export
@@ -69,6 +81,7 @@ core/lifecycle/
 ```
 
 **Avantages**:
+
 - Logique de démarrage / arrêt isolée
 - Module-loader gère DI et onModuleInit
 - Shutdown-handler gère SIGTERM/SIGINT proprement
@@ -78,10 +91,12 @@ core/lifecycle/
 ### 2. Fichiers Refactorisés
 
 #### **application.ts** (158 → 95 lignes, -40%)
+
 **Avant**: Monolithe gérant DI, lifecycle, shutdown, server
 **Après**: Orchestrateur pur utilisant ModuleLoader et ShutdownHandler
 
 **Changements**:
+
 ```typescript
 // AVANT - Tout mélangé dans create()
 static async create(config) {
@@ -104,6 +119,7 @@ static async create(config) {
 ```
 
 **Bénéfices**:
+
 - ✅ Logique DI externalisée → ModuleLoader
 - ✅ Logique lifecycle externalisée → ModuleLoader
 - ✅ Logique shutdown externalisée → ShutdownHandler
@@ -112,14 +128,16 @@ static async create(config) {
 ---
 
 #### **request-utils.ts** (20 lignes, barrel export)
+
 **Avant**: 207 lignes d'implémentation
 **Après**: Barrel export pointant vers `./parsing/`
 
 ```typescript
-export * from './parsing';
+export * from "./parsing";
 ```
 
 **Bénéfices**:
+
 - ✅ API publique inchangée (backward compatible)
 - ✅ Implémentation organisée dans parsing/
 - ✅ Imports existants fonctionnent sans changement
@@ -127,14 +145,16 @@ export * from './parsing';
 ---
 
 #### **multipart-parser.ts** (20 lignes, barrel export)
+
 **Avant**: 165 lignes d'implémentation
 **Après**: Barrel export pointant vers `./multipart/`
 
 ```typescript
-export * from './multipart';
+export * from "./multipart";
 ```
 
 **Bénéfices**:
+
 - ✅ API publique inchangée
 - ✅ Types et logique séparés
 - ✅ Meilleure organisation
@@ -142,38 +162,43 @@ export * from './multipart';
 ---
 
 #### **request-handler.ts** (imports mis à jour)
+
 Mis à jour pour utiliser les nouveaux chemins:
 
 ```typescript
 // AVANT
-import { ParameterInjector } from './parameter-injector';
-import { RequestExecutor } from './request-executor';
-import { MiddlewareDispatcher } from './middleware-dispatcher';
+import { ParameterInjector } from "./parameter-injector";
+import { RequestExecutor } from "./request-executor";
+import { MiddlewareDispatcher } from "./middleware-dispatcher";
 
 // APRÈS
-import { ParameterInjector, RequestExecutor, MiddlewareDispatcher } from './handlers';
+import {
+  ParameterInjector,
+  RequestExecutor,
+  MiddlewareDispatcher,
+} from "./handlers";
 ```
 
 ---
 
 ### 3. Nouveaux Modules Créés
 
-| Module | Lignes | Responsabilité |
-|--------|--------|----------------|
-| `parsing/index.ts` | 13 | Barrel export parsing |
-| `parsing/body-parser.ts` | 138 | Parsing JSON/form |
-| `parsing/query-parser.ts` | 67 | Parsing query/cookies |
-| `parsing/format-detector.ts` | 27 | Validation JSON |
-| `multipart/index.ts` | 12 | Barrel export multipart |
-| `multipart/multipart-types.ts` | 48 | Types UploadedFile |
-| `multipart/multipart-processor.ts` | 178 | Parsing multipart |
-| `handlers/index.ts` | 13 | Barrel export handlers |
-| `handlers/parameter-injector.ts` | 62 | Injection params |
-| `handlers/request-executor.ts` | 84 | Exécution handlers |
-| `handlers/middleware-dispatcher.ts` | 55 | Composition middleware |
-| `lifecycle/index.ts` | 10 | Barrel export lifecycle |
-| `lifecycle/module-loader.ts` | 76 | DI + lifecycle hooks |
-| `lifecycle/shutdown-handler.ts` | 82 | Graceful shutdown |
+| Module                              | Lignes | Responsabilité          |
+| ----------------------------------- | ------ | ----------------------- |
+| `parsing/index.ts`                  | 13     | Barrel export parsing   |
+| `parsing/body-parser.ts`            | 138    | Parsing JSON/form       |
+| `parsing/query-parser.ts`           | 67     | Parsing query/cookies   |
+| `parsing/format-detector.ts`        | 27     | Validation JSON         |
+| `multipart/index.ts`                | 12     | Barrel export multipart |
+| `multipart/multipart-types.ts`      | 48     | Types UploadedFile      |
+| `multipart/multipart-processor.ts`  | 178    | Parsing multipart       |
+| `handlers/index.ts`                 | 13     | Barrel export handlers  |
+| `handlers/parameter-injector.ts`    | 62     | Injection params        |
+| `handlers/request-executor.ts`      | 84     | Exécution handlers      |
+| `handlers/middleware-dispatcher.ts` | 55     | Composition middleware  |
+| `lifecycle/index.ts`                | 10     | Barrel export lifecycle |
+| `lifecycle/module-loader.ts`        | 76     | DI + lifecycle hooks    |
+| `lifecycle/shutdown-handler.ts`     | 82     | Graceful shutdown       |
 
 **Total**: 14 nouveaux fichiers modulaires
 
@@ -182,6 +207,7 @@ import { ParameterInjector, RequestExecutor, MiddlewareDispatcher } from './hand
 ## 📊 Structure Avant/Après
 
 ### AVANT (Plat, monolithique)
+
 ```
 src/lib/
 ├── common/
@@ -208,6 +234,7 @@ src/lib/
 ```
 
 ### APRÈS (Hiérarchique, modulaire)
+
 ```
 src/lib/
 ├── common/              ← Unchanged (types, interfaces, exceptions)
@@ -249,34 +276,43 @@ src/lib/
 ## 🎨 Principes Appliqués
 
 ### 1. **Feature Folders**
+
 Regroupement par fonctionnalité plutôt que par type
+
 - ✅ `http/parsing/` - Tout le parsing HTTP ensemble
 - ✅ `http/multipart/` - Tout le multipart ensemble
 - ✅ `core/handlers/` - Tous les handlers ensemble
 - ✅ `core/lifecycle/` - Tout le lifecycle ensemble
 
 ### 2. **Barrel Exports**
+
 Points d'entrée centralisés pour chaque module
+
 ```typescript
 // http/parsing/index.ts
-export * from './body-parser';
-export * from './query-parser';
-export * from './format-detector';
+export * from "./body-parser";
+export * from "./query-parser";
+export * from "./format-detector";
 ```
 
 **Avantages**:
+
 - ✅ API publique stable
 - ✅ Imports courts et clairs
 - ✅ Flexibilité interne
 
 ### 3. **Single Responsibility**
+
 Chaque fichier a une seule raison de changer
+
 - ✅ `body-parser.ts` - Parsing corps uniquement
 - ✅ `module-loader.ts` - DI + lifecycle uniquement
 - ✅ `shutdown-handler.ts` - Shutdown uniquement
 
 ### 4. **Separation of Concerns**
+
 Types, logique, et orchestration séparés
+
 - ✅ Types dans fichiers dédiés (`multipart-types.ts`)
 - ✅ Logique dans processeurs (`multipart-processor.ts`)
 - ✅ Orchestration dans application (`application.ts`)
@@ -286,18 +322,21 @@ Types, logique, et orchestration séparés
 ## 📈 Métriques d'Amélioration
 
 ### Réduction de Complexité
-| Fichier | Avant | Après | Amélioration |
-|---------|-------|-------|--------------|
-| application.ts | 158 lignes | 95 lignes | **-40%** ✨ |
-| request-utils.ts | 207 lignes | 20 lignes | **-90%** ✨ |
-| multipart-parser.ts | 165 lignes | 20 lignes | **-88%** ✨ |
+
+| Fichier             | Avant      | Après     | Amélioration |
+| ------------------- | ---------- | --------- | ------------ |
+| application.ts      | 158 lignes | 95 lignes | **-40%** ✨  |
+| request-utils.ts    | 207 lignes | 20 lignes | **-90%** ✨  |
+| multipart-parser.ts | 165 lignes | 20 lignes | **-88%** ✨  |
 
 ### Nombre de Fichiers
+
 - **Avant**: 34 fichiers plats
 - **Après**: 48 fichiers organisés en 4 sous-dossiers
 - **Modules créés**: +14 nouveaux fichiers modulaires
 
 ### Profondeur Moyenne
+
 - **Avant**: 2 niveaux (lib/ → fichier)
 - **Après**: 3-4 niveaux (lib/ → category/ → module/ → fichier)
 - **Amélioration**: Organisation hiérarchique claire
@@ -307,6 +346,7 @@ Types, logique, et orchestration séparés
 ## ✅ Tests & Validation
 
 ### Résultats des Tests
+
 ```bash
 Test Suites: 20 passed, 20 total
 Tests:       82 passed, 82 total
@@ -316,6 +356,7 @@ Time:        15.713 s
 **Statut**: ✅ **100% des tests passent sans modification**
 
 ### Compatibilité
+
 - ✅ **Backward compatible à 100%**
 - ✅ **Aucun import de test cassé**
 - ✅ **API publique inchangée**
@@ -326,27 +367,32 @@ Time:        15.713 s
 ## 🎯 Bénéfices
 
 ### Maintenabilité ✅
+
 - Fichiers plus courts et focalisés
 - Organisation logique par fonctionnalité
 - Responsabilités clairement définies
 - Navigation plus intuitive
 
 ### Réutilisabilité ✅
+
 - Modules indépendants et réutilisables
 - Barrel exports pour imports propres
 - Composition facile de modules
 
 ### Testabilité ✅
+
 - Modules isolés plus faciles à tester
 - Mocking simplifié
 - Tests ciblés possibles
 
 ### Scalabilité ✅
+
 - Structure extensible
 - Ajout de features sans toucher code existant
 - Séparation claire des responsabilités
 
 ### Documentation ✅
+
 - Structure auto-documentée
 - JSDoc complet sur tous les modules
 - @internal tags pour fonctions privées
@@ -360,14 +406,14 @@ Les anciens imports fonctionnent toujours grâce aux barrel exports :
 
 ```typescript
 // Ces imports fonctionnent EXACTEMENT comme avant ✅
-import { parseBody, parseQueryParams } from '../http/request-utils';
-import { parseMultipart, UploadedFile } from '../http/multipart-parser';
-import { ClearBoot } from '../core/application';
+import { parseBody, parseQueryParams } from "../http/request-utils";
+import { parseMultipart, UploadedFile } from "../http/multipart-parser";
+import { ClearBoot } from "../core/application";
 
 // Nouveaux imports possibles (plus spécifiques) ✨
-import { parseBody } from '../http/parsing/body-parser';
-import { ModuleLoader } from '../core/lifecycle/module-loader';
-import { ParameterInjector } from '../core/handlers/parameter-injector';
+import { parseBody } from "../http/parsing/body-parser";
+import { ModuleLoader } from "../core/lifecycle/module-loader";
+import { ParameterInjector } from "../core/handlers/parameter-injector";
 ```
 
 ---
@@ -399,20 +445,24 @@ Si vous voulez aller encore plus loin :
 ## 📦 Fichiers Déplacés
 
 ### De http/ vers http/parsing/
+
 - ✅ body-parser.ts
 - ✅ query-parser.ts
 - ✅ format-detector.ts
 
 ### De http/ vers http/multipart/
+
 - ✅ multipart-types.ts
 - ✅ multipart-processor.ts
 
 ### De core/ vers core/handlers/
+
 - ✅ parameter-injector.ts
 - ✅ request-executor.ts
 - ✅ middleware-dispatcher.ts
 
 ### Créés dans core/lifecycle/
+
 - ✨ module-loader.ts (extrait de application.ts)
 - ✨ shutdown-handler.ts (extrait de application.ts)
 
@@ -421,6 +471,7 @@ Si vous voulez aller encore plus loin :
 ## ✅ Conclusion
 
 **Mission accomplie**: Le code ClearBoot est maintenant **parfaitement organisé** avec :
+
 - ✅ **4 nouveaux dossiers** de fonctionnalités
 - ✅ **14 modules créés** ou déplacés
 - ✅ **Réduction de 40-90%** de la complexité des gros fichiers
@@ -432,6 +483,6 @@ La structure est maintenant **claire, modulaire et professionnelle** ! 🚀
 
 ---
 
-*Réorganisation complétée le: ${new Date().toLocaleDateString('fr-FR')}*
-*Tests: 82/82 passent ✅*
-*Backward Compatibility: 100% ✅*
+_Réorganisation complétée le: ${new Date().toLocaleDateString('fr-FR')}_
+_Tests: 82/82 passent ✅_
+_Backward Compatibility: 100% ✅_

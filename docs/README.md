@@ -7,10 +7,12 @@ Complete documentation for ClearBoot - a lightweight, type-safe TypeScript frame
 ## 📖 Quick Navigation
 
 ### Getting Started
+
 - **[Getting Started](getting-started.md)** - Installation, setup, and your first server
 - **[Controllers Guide](controllers-guide.md)** - Routes, HTTP verbs, and parameters
 
 ### Core Features
+
 - **[HTTP Features](http-features.md)** - Cookies, file uploads, and form-data
 - **[HTTP Responses](http-response.md)** - Status codes, headers, and serialization
 - **[Validation](validation.md)** - Schema validation with Zod
@@ -20,6 +22,7 @@ Complete documentation for ClearBoot - a lightweight, type-safe TypeScript frame
 - **[DI Advanced](dependency-injection-advanced.md)** - Advanced patterns and testing
 
 ### Advanced Topics
+
 - **[Feature Decorators](feature-decorators.md)** - `@Validate`, `@Serialize`, `@HttpCode`, `@Header`
 - **[Architecture Patterns](patterns.md)** - MVC, Service Layer, Repository Pattern
 - **[Lifecycle Hooks](lifecycle.md)** - `onModuleInit`, graceful shutdown, ORM integration
@@ -61,16 +64,19 @@ docs/
 ## Learning Path
 
 ### Beginner
+
 1. [Getting Started](getting-started.md) - Learn basic concepts
 2. [Controllers Guide](controllers-guide.md) - Build your first routes
 3. [HTTP Responses](http-response.md) - Control responses
 
 ### Intermediate
+
 4. [Validation](validation.md) - Validate user input
 5. [Middleware](middlewares.md) - Add cross-cutting concerns
 6. [Dependency Injection](dependency-injection.md) - Organize services
 
 ### Advanced
+
 7. [Architectural Patterns](patterns.md) - Design scalable apps
 8. [Testing Guide](testing.md) - Write comprehensive tests
 9. [Dependency Injection Advanced](dependency-injection-advanced.md) - Master DI
@@ -81,51 +87,55 @@ docs/
 ## Core Concepts
 
 ### Controllers
+
 Route handlers that process HTTP requests and return responses.
 
 ```typescript
-@Controller('/users')
+@Controller("/users")
 class UserController {
-    @Get('/:id')
-    getUser(@Param('id') id: string) {
-        return { id };
-    }
+  @Get("/:id")
+  getUser(@Param("id") id: string) {
+    return { id };
+  }
 }
 ```
 
 ### Decorators
+
 Metadata-driven annotations for routes, parameters, and features.
 
 ```typescript
-@Controller('/api')
+@Controller("/api")
 @Middleware(AuthMiddleware)
 class ApiController {
-    @Post('/data')
-    @Validate(DataSchema)
-    @Serialize(DataDTO)
-    @HttpCode(201)
-    createData(@Body() body: any) {
-        return body;
-    }
+  @Post("/data")
+  @Validate(DataSchema)
+  @Serialize(DataDTO)
+  @HttpCode(201)
+  createData(@Body() body: any) {
+    return body;
+  }
 }
 ```
 
 ### Dependency Injection
+
 Share singleton instances across your application.
 
 ```typescript
 @Injectable()
 class UserService {
-    getUser(id: number) { }
+  getUser(id: number) {}
 }
 
-@Controller('/users')
+@Controller("/users")
 class UserController {
-    private userService = inject(UserService);
+  private userService = inject(UserService);
 }
 ```
 
 ### Validation
+
 Validate incoming data with schemas.
 
 ```typescript
@@ -140,23 +150,25 @@ create(@Body() body: any) { }
 ```
 
 ### Middleware
+
 Process requests and responses, add cross-cutting concerns.
 
 ```typescript
 @Injectable()
 class LoggerMiddleware implements IMiddleware {
-    async use(req, res, next) {
-        console.log(`${req.method} ${req.url}`);
-        await next();
-    }
+  async use(req, res, next) {
+    console.log(`${req.method} ${req.url}`);
+    await next();
+  }
 }
 
-@Controller('/api')
+@Controller("/api")
 @Middleware(LoggerMiddleware)
-class ApiController { }
+class ApiController {}
 ```
 
 ### Serialization
+
 Transform responses using DTOs.
 
 ```typescript
@@ -176,6 +188,7 @@ getUser() { }
 ## API Overview
 
 ### Decorators
+
 - `@Controller(path)` - Define a controller with base path
 - `@Get(path)` - GET route handler
 - `@Post(path)` - POST route handler
@@ -195,11 +208,13 @@ getUser() { }
 - `@Res()` - Get raw response
 
 ### Interfaces
+
 - `IMiddleware` - Middleware interface
 - `IHeaderProvider` - Header provider interface
 - `IRepository<T>` - Repository pattern interface
 
 ### Services
+
 - `Application` - Main application class
 - `inject<T>(ServiceClass)` - Resolve service from DI container
 - `globalContainer` - Access DI container
@@ -209,6 +224,7 @@ getUser() { }
 ## Example Project
 
 ### Directory Structure
+
 ```
 src/
 ├── main.ts
@@ -237,10 +253,11 @@ test/
 ```
 
 ### Minimal Setup
+
 ```typescript
 // main.ts
-import { ClearBoot } from 'clearboot';
-import { UserController } from './controllers/user.controller';
+import { ClearBoot } from "clearboot";
+import { UserController } from "./controllers/user.controller";
 
 ClearBoot.create();
 ```
@@ -250,50 +267,53 @@ ClearBoot.create();
 ## Common Patterns
 
 ### Service Layer Architecture
+
 Separate business logic into services, repositories, and controllers.
 
 ```typescript
 // Repository
 @Injectable()
 class UserRepository {
-    async findById(id: number) { }
+  async findById(id: number) {}
 }
 
 // Service
 @Injectable()
 class UserService {
-    private repo = inject(UserRepository);
-    async getUser(id: number) { }
+  private repo = inject(UserRepository);
+  async getUser(id: number) {}
 }
 
 // Controller
-@Controller('/users')
+@Controller("/users")
 class UserController {
-    private userService = inject(UserService);
-    
-    @Get('/:id')
-    async getUser(@Param('id') id: string) {
-        return this.service.getUser(parseInt(id));
-    }
+  private userService = inject(UserService);
+
+  @Get("/:id")
+  async getUser(@Param("id") id: string) {
+    return this.service.getUser(parseInt(id));
+  }
 }
 ```
 
 ### Error Handling
+
 ```typescript
 @Injectable()
 class ErrorHandlerMiddleware implements IMiddleware {
-    async use(req, res, next) {
-        try {
-            await next();
-        } catch (error) {
-            res.writeHead(error.statusCode || 500);
-            res.end(JSON.stringify({ error: error.message }));
-        }
+  async use(req, res, next) {
+    try {
+      await next();
+    } catch (error) {
+      res.writeHead(error.statusCode || 500);
+      res.end(JSON.stringify({ error: error.message }));
     }
+  }
 }
 ```
 
 ### Request Validation + Response Serialization
+
 ```typescript
 @Post('/users')
 @Validate(CreateUserSchema)
@@ -309,27 +329,29 @@ create(@Body() body: any) {
 ## Testing
 
 ### Unit Tests
+
 ```typescript
-describe('UserService', () => {
-    test('should find user', async () => {
-        const mockRepo = { findById: jest.fn().mockResolvedValue({ id: 1 }) };
-        const service = new UserService(mockRepo as any);
-        const user = await service.getUser(1);
-        expect(user.id).toBe(1);
-    });
+describe("UserService", () => {
+  test("should find user", async () => {
+    const mockRepo = { findById: jest.fn().mockResolvedValue({ id: 1 }) };
+    const service = new UserService(mockRepo as any);
+    const user = await service.getUser(1);
+    expect(user.id).toBe(1);
+  });
 });
 ```
 
 ### Integration Tests
+
 ```typescript
-describe('User API', () => {
-    test('should create user', async () => {
-        const res = await request(server)
-            .post('/users')
-            .send({ name: 'John', email: 'john@example.com' })
-            .expect(201);
-        expect(res.body.id).toBeDefined();
-    });
+describe("User API", () => {
+  test("should create user", async () => {
+    const res = await request(server)
+      .post("/users")
+      .send({ name: "John", email: "john@example.com" })
+      .expect(201);
+    expect(res.body.id).toBeDefined();
+  });
 });
 ```
 
@@ -338,21 +360,25 @@ describe('User API', () => {
 ## Troubleshooting
 
 ### Routes not working
+
 - Verify ClearBoot.create() is called
 - Check route path and HTTP verb match your request
 - Use browser devtools to inspect actual requests
 
 ### Validation not working
+
 - Ensure `@Validate` decorator is present
 - Check Zod schema is correct
 - Verify request body matches schema structure
 
 ### Dependency Injection not working
+
 - Verify service has `@Injectable()` decorator
 - Check service is properly injected in constructor
 - Use `inject<ServiceClass>(ServiceClass)` to resolve manually
 
 ### Tests failing
+
 - Check mocks are set up before test execution
 - Verify test data matches expected types
 - Use `.toHaveBeenCalledWith()` to debug calls
@@ -362,12 +388,14 @@ describe('User API', () => {
 ## Resources
 
 ### External Resources
+
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [Zod Documentation](https://zod.dev)
 - [Jest Documentation](https://jestjs.io)
 - [class-transformer](https://github.com/typestack/class-transformer)
 
 ### Related Patterns
+
 - [MVC Pattern](patterns.md#mvc-pattern)
 - [Service Layer Pattern](patterns.md#service-layer-pattern)
 - [Repository Pattern](patterns.md#repository-pattern)
@@ -378,6 +406,7 @@ describe('User API', () => {
 ## Contributing
 
 To improve this documentation:
+
 1. Identify unclear sections
 2. Add examples for complex concepts
 3. Expand troubleshooting guides

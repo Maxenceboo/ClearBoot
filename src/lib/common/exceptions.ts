@@ -4,16 +4,19 @@
  * Stores HTTP status code and error message.
  */
 export class HttpException extends Error {
-    /**
-     * Create HTTP exception.
-     * @param message - Error message
-     * @param status - HTTP status code (400, 404, 500, etc.)
-     */
-    constructor(public message: string, public status: number) {
-        super(message);
-        // Required for instanceof checks to work correctly after TS compilation
-        Object.setPrototypeOf(this, HttpException.prototype);
-    }
+  /**
+   * Create HTTP exception.
+   * @param message - Error message
+   * @param status - HTTP status code (400, 404, 500, etc.)
+   */
+  constructor(
+    public message: string,
+    public status: number,
+  ) {
+    super(message);
+    // Required for instanceof checks to work correctly after TS compilation
+    Object.setPrototypeOf(this, HttpException.prototype);
+  }
 }
 
 /**
@@ -21,9 +24,9 @@ export class HttpException extends Error {
  * Thrown when request data is invalid or malformed.
  */
 export class BadRequestException extends HttpException {
-    constructor(message: string = 'Bad Request') {
-        super(message, 400);
-    }
+  constructor(message: string = "Bad Request") {
+    super(message, 400);
+  }
 }
 
 /**
@@ -31,9 +34,9 @@ export class BadRequestException extends HttpException {
  * Thrown when authentication is required but not provided.
  */
 export class UnauthorizedException extends HttpException {
-    constructor(message: string = 'Unauthorized') {
-        super(message, 401);
-    }
+  constructor(message: string = "Unauthorized") {
+    super(message, 401);
+  }
 }
 
 /**
@@ -41,9 +44,9 @@ export class UnauthorizedException extends HttpException {
  * Thrown when user is authenticated but doesn't have permission.
  */
 export class ForbiddenException extends HttpException {
-    constructor(message: string = 'Forbidden') {
-        super(message, 403);
-    }
+  constructor(message: string = "Forbidden") {
+    super(message, 403);
+  }
 }
 
 /**
@@ -51,9 +54,9 @@ export class ForbiddenException extends HttpException {
  * Thrown when requested resource doesn't exist.
  */
 export class NotFoundException extends HttpException {
-    constructor(message: string = 'Not Found') {
-        super(message, 404);
-    }
+  constructor(message: string = "Not Found") {
+    super(message, 404);
+  }
 }
 
 /**
@@ -61,9 +64,9 @@ export class NotFoundException extends HttpException {
  * Thrown for unexpected server-side errors.
  */
 export class InternalServerErrorException extends HttpException {
-    constructor(message: string = 'Internal Server Error') {
-        super(message, 500);
-    }
+  constructor(message: string = "Internal Server Error") {
+    super(message, 500);
+  }
 }
 
 /**
@@ -71,7 +74,7 @@ export class InternalServerErrorException extends HttpException {
  * Thrown when request body exceeds maximum allowed size.
  */
 export class PayloadTooLargeException extends HttpException {
-    constructor(message: string = 'Payload Too Large') {
-        super(message, 413);
-    }
+  constructor(message: string = "Payload Too Large") {
+    super(message, 413);
+  }
 }

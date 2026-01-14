@@ -3,18 +3,18 @@
  * Identifies which source to extract parameter values from in route handlers.
  */
 export enum ParamType {
-    /** Request body parameter */
-    BODY = 'BODY',
-    /** Query string parameter */
-    QUERY = 'QUERY',
-    /** Route path parameter */
-    PARAM = 'PARAM',
-    /** Raw HTTP request object */
-    REQ = 'REQ',
-    /** Enhanced HTTP response object */
-    RES = 'RES',
-    /** Cookie value */
-    COOKIE = 'COOKIE'
+  /** Request body parameter */
+  BODY = "BODY",
+  /** Query string parameter */
+  QUERY = "QUERY",
+  /** Route path parameter */
+  PARAM = "PARAM",
+  /** Raw HTTP request object */
+  REQ = "REQ",
+  /** Enhanced HTTP response object */
+  RES = "RES",
+  /** Cookie value */
+  COOKIE = "COOKIE",
 }
 
 /**

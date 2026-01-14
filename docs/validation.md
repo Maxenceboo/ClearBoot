@@ -1,4 +1,3 @@
-
 # ✅ Validation des Données
 
 ClearBoot intègre nativement **Zod** pour valider les données entrantes (Body, Query, Params).
@@ -16,20 +15,19 @@ npm install zod
 3. Si la validation échoue, une erreur **400 Bad Request** est renvoyée automatiquement.
 
 ```typescript
-import { z } from 'zod';
-import { Controller, Post, Body, Validate } from '../lib';
+import { z } from "zod";
+import { Controller, Post, Body, Validate } from "../lib";
 
 // 1. Définition du Schéma
 const CreateUserSchema = z.object({
   username: z.string().min(3),
   email: z.string().email(),
-  age: z.number().min(18)
+  age: z.number().min(18),
 });
 
-@Controller('/users')
+@Controller("/users")
 class UserController {
-
-  @Post('/')
+  @Post("/")
   @Validate(CreateUserSchema) // 👈 2. Validation automatique
   createUser(@Body() body: any) {
     // Si on arrive ici, c'est que 'body' est valide !
@@ -43,12 +41,12 @@ class UserController {
 `@Validate` validates the `@Body` parameter:
 
 ```typescript
-import { Query, Param, Body } from 'clearboot';
+import { Query, Param, Body } from "clearboot";
 
-@Controller('/api')
+@Controller("/api")
 class ApiController {
   // Validate Body
-  @Post('/users')
+  @Post("/users")
   @Validate(CreateUserSchema)
   createUser(@Body() body: any) {
     return body;
@@ -68,3 +66,4 @@ Si le client envoie des données invalides, il reçoit :
     "username": { "_errors": ["String must contain at least 3 character(s)"] }
   }
 }
+```

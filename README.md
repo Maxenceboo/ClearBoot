@@ -8,7 +8,7 @@
 
 **A TypeScript-first, Dependency Injection based Web Framework for Node.js**
 
-*Think NestJS, but lighter and built on native HTTP—no Express overhead.*
+_Think NestJS, but lighter and built on native HTTP—no Express overhead._
 
 ClearBoot brings structure and robustness to your Node.js applications without the complexity of heavier frameworks. It enforces best practices (DI, Decorators, Atomic Architecture) while staying lightweight and performant.
 
@@ -43,18 +43,21 @@ npm install clearboot
 **1. Define a Service** (`user.service.ts`)
 
 ```typescript
-import { Injectable } from 'clearboot';
+import { Injectable } from "clearboot";
 
 @Injectable()
 export class UserService {
-  private users = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }];
-  
+  private users = [
+    { id: 1, name: "Alice" },
+    { id: 2, name: "Bob" },
+  ];
+
   findAll() {
     return this.users;
   }
-  
+
   findById(id: number) {
-    return this.users.find(u => u.id === id);
+    return this.users.find((u) => u.id === id);
   }
 }
 ```
@@ -62,24 +65,24 @@ export class UserService {
 **2. Create a Controller** (`user.controller.ts`)
 
 ```typescript
-import { Controller, Get, Post, Body, Param, inject } from 'clearboot';
-import { UserService } from './user.service';
+import { Controller, Get, Post, Body, Param, inject } from "clearboot";
+import { UserService } from "./user.service";
 
-@Controller('/users')
+@Controller("/users")
 export class UserController {
   private readonly userService = inject(UserService);
 
-  @Get('/')
+  @Get("/")
   getAllUsers() {
     return this.userService.findAll();
   }
 
-  @Get('/:id')
-  getUserById(@Param('id') id: string) {
+  @Get("/:id")
+  getUserById(@Param("id") id: string) {
     return this.userService.findById(Number(id));
   }
 
-  @Post('/')
+  @Post("/")
   createUser(@Body() body: { name: string }) {
     return { created: true, user: body };
   }
@@ -89,24 +92,26 @@ export class UserController {
 **3. Bootstrap Your Application** (`main.ts`)
 
 ```typescript
-import 'reflect-metadata';
-import { ClearBoot } from 'clearboot';
+import "reflect-metadata";
+import { ClearBoot } from "clearboot";
 
-await ClearBoot.create({ 
+await ClearBoot.create({
   port: 3000,
-  logger: { level: 'info' }  // silent | minimal | info | debug
+  logger: { level: "info" }, // silent | minimal | info | debug
 });
 
-console.log('🚀 Server running on http://localhost:3000');
+console.log("🚀 Server running on http://localhost:3000");
 ```
 
 **That's it!** Your API is now running with:
+
 - ✅ Dependency injection
 - ✅ Request logging
 - ✅ Type-safe routing
 - ✅ Graceful shutdown
 
 Test it:
+
 ```bash
 curl http://localhost:3000/users
 curl http://localhost:3000/users/1
@@ -117,6 +122,7 @@ curl http://localhost:3000/users/1
 ## 📚 Documentation
 
 ### Core Guides
+
 - 🚀 [**Getting Started**](docs/getting-started.md) - Setup and first steps
 - 🛣️ [**Controllers**](docs/controllers-guide.md) - Routing, HTTP verbs, parameters
 - 📝 [**HTTP Features**](docs/http-features.md) - Cookies, file uploads, form-data
@@ -125,6 +131,7 @@ curl http://localhost:3000/users/1
 - 🔧 [**Middleware**](docs/middlewares.md) - Request/response processing
 
 ### Advanced Topics
+
 - 📊 [**Logging**](docs/logging.md) - Structured logging system
 - 🏗️ [**Architecture Patterns**](docs/patterns.md) - MVC, Repository, Service Layer
 - 🔄 [**Lifecycle Hooks**](docs/lifecycle.md) - Startup, shutdown, database integration
@@ -139,6 +146,7 @@ curl http://localhost:3000/users/1
 ## 🏆 Features
 
 ### HTTP & Routing
+
 - ✅ Decorator-based routing (`@Get`, `@Post`, `@Put`, `@Delete`, `@Patch`)
 - ✅ Parameter extraction (`@Body`, `@Param`, `@Query`, `@Cookie`, `@Headers`)
 - ✅ File uploads (multipart/form-data, 10MB per file)
@@ -147,6 +155,7 @@ curl http://localhost:3000/users/1
 - ✅ Custom HTTP codes and headers
 
 ### Middleware & Security
+
 - ✅ Three-level middleware pipeline (global, controller, route)
 - ✅ Security headers (Helmet integration)
 - ✅ Rate limiting
@@ -155,11 +164,13 @@ curl http://localhost:3000/users/1
 - ✅ Request logging with configurable levels
 
 ### Validation & Serialization
+
 - ✅ Type-safe validation with Zod (`@Validate` decorator)
 - ✅ Automatic response serialization (`@Serialize`)
 - ✅ Class-transformer integration
 
 ### Architecture
+
 - ✅ Dependency injection container
 - ✅ Lifecycle hooks (`onModuleInit`)
 - ✅ Graceful shutdown (SIGTERM, SIGINT)
@@ -167,6 +178,7 @@ curl http://localhost:3000/users/1
 - ✅ 100% TypeScript with full type inference
 
 ### Quality
+
 - ✅ **120 tests** with 100% coverage
 - ✅ Complete JSDoc documentation
 - ✅ Production-ready error handling

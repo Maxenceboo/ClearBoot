@@ -1,4 +1,3 @@
-
 # 💉 Injection de Dépendances (DI)
 
 ClearBoot dispose d'un conteneur IoC (Inversion of Control) intégré. Cela permet de gérer vos services de manière singleton et de les injecter automatiquement dans vos contrôleurs.
@@ -8,7 +7,7 @@ ClearBoot dispose d'un conteneur IoC (Inversion of Control) intégré. Cela perm
 Utilisez le décorateur `@Injectable()` pour marquer une classe comme gérée par le conteneur.
 
 ```typescript
-import { Injectable } from 'clearboot';
+import { Injectable } from "clearboot";
 
 @Injectable()
 export class UserService {
@@ -18,7 +17,6 @@ export class UserService {
     return this.db;
   }
 }
-
 ```
 
 ## 2. Injecter un Service
@@ -26,25 +24,24 @@ export class UserService {
 ClearBoot utilise la fonction `inject()` pour résoudre les dépendances. C'est simple et explicite.
 
 ```typescript
-import { Controller, Get, inject } from 'clearboot';
-import { UserService } from '../services/user.service';
+import { Controller, Get, inject } from "clearboot";
+import { UserService } from "../services/user.service";
 
-@Controller('/users')
+@Controller("/users")
 export class UserController {
-  
   private readonly userService = inject(UserService);
 
-  @Get('/')
+  @Get("/")
   getAll() {
     return this.userService.findAll();
   }
 }
-
 ```
 
 ### Pourquoi `inject()` plutôt que le constructeur ?
 
 ClearBoot utilise une approche différente de NestJS :
+
 - **Plus simple** : Pas besoin de déclarer les types dans le constructeur
 - **Plus explicite** : On voit directement quel service est injecté
 - **Moins magique** : Pas de réflexion sur les paramètres du constructeur
@@ -65,7 +62,7 @@ Un service peut également injecter d'autres services.
 @Injectable()
 export class AuthService {
   private readonly userService = inject(UserService);
-  
+
   login(username: string) {
     const users = this.userService.findAll();
     // ...
@@ -75,7 +72,7 @@ export class AuthService {
 
 ## Règles
 
-* Les services sont des **Singletons** (une seule instance par application).
-* L'injection fonctionne dans les contrôleurs, les middlewares et d'autres services.
-* Vous ne devez jamais faire `new UserService()` vous-même.
-* Tous les services doivent avoir le décorateur `@Injectable()`.
+- Les services sont des **Singletons** (une seule instance par application).
+- L'injection fonctionne dans les contrôleurs, les middlewares et d'autres services.
+- Vous ne devez jamais faire `new UserService()` vous-même.
+- Tous les services doivent avoir le décorateur `@Injectable()`.
