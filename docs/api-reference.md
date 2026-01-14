@@ -184,6 +184,34 @@ Provides full access to Node.js ServerResponse object.
 
 ---
 
+#### @Cookie(name?: string)
+Extract cookies from the request. Can extract a specific cookie or all cookies.
+
+```typescript
+// Extract a specific cookie
+@Get('/session')
+checkSession(@Cookie('sessionId') sessionId: string) {
+    if (!sessionId) {
+        return { authenticated: false };
+    }
+    return { authenticated: true };
+}
+
+// Extract all cookies
+@Get('/all-cookies')
+getAllCookies(@Cookie() cookies: Record<string, string>) {
+    return { cookies };
+}
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | string | No | Cookie name (omit for all cookies) |
+
+**Note**: Cookies are automatically URL-decoded.
+
+---
+
 ### Feature Decorators
 
 #### @Validate(schema: ZodSchema)
@@ -484,6 +512,65 @@ const service = globalContainer.get(MyService);
 
 ## Type Definitions
 
+### ClearResponse
+Extended HTTP response object with additional methods.
+
+```typescript
+interface ClearResponse extends http.ServerResponse {
+    status(code: number): this;
+    json(data: any): void;
+    send(data: string): void;
+    cookie(name: string, value: string, options?: CookieOptions): this;
+    clearCookie(name: string, options?: CookieOptions): this;
+}
+```
+
+**Methods**:
+- `status(code)` - Set HTTP status code (chainable)
+- `json(data)` - Send JSON response
+- `send(data)` - Send plain text response
+- `cookie(name, value, options)` - Set a cookie (chainable)
+- `clearCookie(name, options)` - Clear a cookie (chainable)
+
+**Usage**:
+```typescript
+@Get('/test')
+test(@Res() res: ClearResponse) {
+    res.status(200)
+       .cookie('session', 'abc123', { httpOnly: true })
+       .json({ success: true });
+}
+```
+
+---
+
+### CookieOptions
+Options for setting cookies.
+
+```typescript
+interface CookieOptions {
+    maxAge?: number;      // Duration in milliseconds
+    expires?: Date;       // Expiration date
+    httpOnly?: boolean;   // HTTP-only (not accessible via JS)
+    secure?: boolean;     // HTTPS only
+    sameSite?: 'Strict' | 'Lax' | 'None';  // CSRF protection
+    path?: string;        // Cookie path (default: '/')
+    domain?: string;      // Cookie domain
+}
+```
+
+**Example**:
+```typescript
+res.cookie('token', 'xyz', {
+    httpOnly: true,
+    secure: true,
+    maxAge: 3600000,  // 1 hour
+    sameSite: 'Strict'
+});
+```
+
+---
+
 ### HeaderProviderClass
 Type alias for header provider class constructors.
 
@@ -643,7 +730,7 @@ class ApiController {
 - @Get, @Post, @Put, @Patch, @Delete, @Head, @Options
 
 **Parameter Extraction**:
-- @Param, @Query, @Body, @Req, @Res
+- @Param, @Query, @Body, @Cookie, @Req, @Res
 
 **Feature Control**:
 - @Validate, @Serialize, @HttpCode, @Header

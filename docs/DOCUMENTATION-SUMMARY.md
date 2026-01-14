@@ -58,6 +58,20 @@ This document provides an overview of the comprehensive documentation created fo
 
 ---
 
+### 3.5. **[http-features.md](http-features.md)** - Cookies, Forms & File Upload
+- Cookies (@Cookie decorator, res.cookie(), res.clearCookie())
+- Form Data (application/x-www-form-urlencoded parsing)
+- File Upload (multipart/form-data handling)
+- Security best practices
+- Testing strategies
+- Complete examples for each feature
+
+**Target Audience**: Developers building authentication, forms, file uploads
+**Length**: ~400 lines
+**Key Sections**: Cookies, form-data, file upload, security, testing
+
+---
+
 ### 4. **[feature-decorators.md](feature-decorators.md)** - Validation & Serialization
 - @Validate decorator (input validation with Zod)
 - @Serialize decorator (response transformation)
