@@ -1,0 +1,36 @@
+# Source files
+src/
+test/
+coverage/
+
+# Config files
+tsconfig.json
+tsconfig.test.json
+jest.config.js
+
+# Documentation
+docs/
+ARCHITECTURE_REORGANIZATION.md
+COMPLETION.md
+DOCUMENTATION_CLEANUP_COMPLETE.md
+DOCUMENTATION_HANDOFF.md
+README_OLD.md
+REFACTORING_REPORT.md
+CODE_DOCUMENTATION.md
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Tests
+*.test.ts
+*.spec.ts
+
+# Misc
+.DS_Store
+.env
+.env.local

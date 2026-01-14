@@ -4,15 +4,29 @@
   "description": "Atomic, TypeScript-first, Dependency Injection based Web Framework for Node.js",
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
+  "files": [
+    "dist/lib",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run test && npm run build",
     "dev": "ts-node src/app/main.ts",
     "start": "node dist/app/main.js",
     "test": "jest",
     "test:cov": "jest --coverage",
     "test:watch": "jest --watch"
   },
-  "keywords": ["framework", "typescript", "dependency-injection", "decorators", "http"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Maxenceboo/clearboot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Maxenceboo/clearboot/issues"
+  },
+  "homepage": "https://github.com/Maxenceboo/clearboot#readme",
+  "keywords": ["framework", "typescript", "dependency-injection", "decorators", "http", "nestjs-alternative", "web-framework", "nodejs"],
   "author": "Max",
   "license": "MIT",
   "dependencies": {

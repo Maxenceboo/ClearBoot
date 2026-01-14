@@ -1,53 +1,60 @@
 # ClearBoot Documentation
 
-Welcome to the ClearBoot documentation. A lightweight, type-safe TypeScript framework for building REST APIs with zero external dependencies for HTTP handling.
+Complete documentation for ClearBoot - a lightweight, type-safe TypeScript framework for building REST APIs.
 
 ---
 
-## Quick Navigation
+## 📖 Quick Navigation
 
 ### Getting Started
-- **[Getting Started](getting-started.md)** - Setup, first server, core concepts
-- **[Controllers Guide](controllers-guide.md)** - Routes, HTTP verbs, parameters
+- **[Getting Started](getting-started.md)** - Installation, setup, and your first server
+- **[Controllers Guide](controllers-guide.md)** - Routes, HTTP verbs, and parameters
 
 ### Core Features
-- **[HTTP Responses](http-response.md)** - Status codes, headers, serialization
-- **[HTTP Features](http-features.md)** - Cookies, Form-Data, File Upload
+- **[HTTP Features](http-features.md)** - Cookies, file uploads, and form-data
+- **[HTTP Responses](http-response.md)** - Status codes, headers, and serialization
 - **[Validation](validation.md)** - Schema validation with Zod
-- **[Middleware](middlewares.md)** - Cross-cutting concerns, request/response processing
-- **[Logging](logging.md)** - Logging system and configuration
-- **[Dependency Injection](dependency-injection.md)** - Service management (advanced patterns)
-- **[Dependency Injection Advanced](dependency-injection-advanced.md)** - Factory functions, testing patterns
+- **[Middleware](middlewares.md)** - Request/response processing pipeline
+- **[Logging](logging.md)** - Structured logging with configurable levels
+- **[Dependency Injection](dependency-injection.md)** - Basic DI concepts
+- **[DI Advanced](dependency-injection-advanced.md)** - Advanced patterns and testing
 
 ### Advanced Topics
-- **[Feature Decorators](feature-decorators.md)** - @Validate, @Serialize, @HttpCode, @Header
-- **[Architectural Patterns](patterns.md)** - MVC, service layer, repository pattern, error handling
-- **[Testing Guide](testing.md)** - Unit tests, integration tests, mocking, fixtures
-- **[Configuration](configuration.md)** - Environment variables, app config
-- **[Exception Handling](exceptions.md)** - Custom errors, error middleware
+- **[Feature Decorators](feature-decorators.md)** - `@Validate`, `@Serialize`, `@HttpCode`, `@Header`
+- **[Architecture Patterns](patterns.md)** - MVC, Service Layer, Repository Pattern
+- **[Lifecycle Hooks](lifecycle.md)** - `onModuleInit`, graceful shutdown, ORM integration
+- **[Testing](testing.md)** - Unit tests, integration tests, mocking strategies
+- **[Configuration](configuration.md)** - Environment variables and app configuration
+- **[Exception Handling](exceptions.md)** - Custom errors and error middleware
+- **[API Reference](api-reference.md)** - Complete decorator and API reference
+- **[Framework Architecture](architecture.md)** - Internal architecture overview
 
 ---
 
-## Documentation Structure
+## 🏗️ Documentation Structure
 
 ```
 docs/
-├── getting-started.md                    # Start here
-├── controllers-guide.md                  # Route handlers
-├── http-response.md                      # HTTP decorators
+├── getting-started.md                    # 👈 Start here
+├── controllers-guide.md                  # Route handlers and HTTP verbs
+├── http-response.md                      # Response handling
+├── http-features.md                      # Cookies, uploads, form-data
 ├── validation.md                         # Input validation
-├── middlewares.md                        # Request/response processing
+├── middlewares.md                        # Request/response pipeline
 ├── logging.md                            # Logging system
-├── dependency-injection.md               # Basic DI concepts
+├── dependency-injection.md               # Basic DI
 ├── dependency-injection-advanced.md      # Advanced DI patterns
 ├── feature-decorators.md                 # @Validate, @Serialize
 ├── patterns.md                           # Architectural patterns
+├── lifecycle.md                          # Lifecycle hooks
 ├── testing.md                            # Testing strategies
-├── configuration.md                      # Environment & config
+├── configuration.md                      # Environment config
 ├── exceptions.md                         # Error handling
-├── architecture.md                       # Framework architecture
-└── index.md                              # This file
+├── api-reference.md                      # Complete API docs
+└── architecture.md                       # Framework internals
 ```
+
+---
 
 ---
 

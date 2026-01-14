@@ -30,11 +30,17 @@ ClearBoot brings structure and robustness to your Node.js applications without t
 
 ```bash
 npm install clearboot reflect-metadata zod
+npm install --save-dev typescript @types/node jest
+
 ```
 
----
-
 ## 🚀 Quick Start
+
+### Installation
+
+```bash
+npm install clearboot reflect-metadata zod
+```
 
 ### Create Your First API
 
@@ -116,7 +122,7 @@ curl http://localhost:3000/users/1
 
 ### Core Guides
 - 🚀 [**Getting Started**](docs/getting-started.md) - Setup and first steps
-- 🛣️ [**Controllers**](docs/controllers-guide.md) - Routing, HTTP verbs, parameters
+- 🛣️ [**Controllers**](docs/controllers-guide.md) - Routing, HTTP verbs, parameters  
 - 📝 [**HTTP Features**](docs/http-features.md) - Cookies, file uploads, form-data
 - ✅ [**Validation**](docs/feature-decorators.md) - Type-safe validation with Zod
 - 💉 [**Dependency Injection**](docs/dependency-injection-advanced.md) - Service patterns
@@ -133,6 +139,28 @@ curl http://localhost:3000/users/1
 **👉 [Full Documentation Index](docs/README.md)**
 
 ---
+
+### Quick Navigation
+- 🚀 **[Getting Started](docs/getting-started.md)** - Démarrage rapide et premiers pas
+- 🛣️ **[Controllers Guide](docs/controllers-guide.md)** - Routes, paramètres, HTTP verbs
+- 📝 **[HTTP Responses](docs/http-response.md)** - Status codes, headers, serialization
+- � **[HTTP Features](docs/http-features.md)** - Cookies, Form-Data, File Upload
+- �🎯 **[Feature Decorators](docs/feature-decorators.md)** - @Validate, @Serialize
+- � **[Logging](docs/logging.md)** - Log levels, HTTP requests, errors, configuration
+- �💉 **[Dependency Injection](docs/dependency-injection-advanced.md)** - Services et patterns
+- 🏗️ **[Architectural Patterns](docs/patterns.md)** - MVC, Service Layer, Repository Pattern
+- 🔄 **[Lifecycle & Database](docs/lifecycle.md)** - onModuleInit, Graceful Shutdown, ORM Integration
+- 🧪 **[Testing Guide](docs/testing.md)** - Unit & Integration tests
+- 📖 **[API Reference](docs/api-reference.md)** - Complete decorator & API reference
+
+### Other Resources
+1. **[Contrôleurs & Routing](docs/controllers-guide.md)**
+2. **[Middlewares & Sécurité](docs/middlewares.md)**
+3. **[Injection de Dépendances (DI)](docs/dependency-injection-advanced.md)**
+4. **[Validation avec Zod](docs/feature-decorators.md)**
+5. **[Architecture](docs/architecture.md)**
+6. **[Configuration](docs/configuration.md)**
+7. **[Exception Handling](docs/exceptions.md)**
 
 ## 🏆 Features
 
