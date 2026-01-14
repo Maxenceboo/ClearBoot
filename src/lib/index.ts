@@ -6,6 +6,8 @@ export * from './common/types';
 export * from './common/logger';
 export * from './http/response';
 export * from './http/cors';
+export * from './http/swagger-generator';
+export * from './http/swagger-manager';
 export * from './common/exceptions';
 export * from './middlewares/helmet.middleware';
 export * from './middlewares/logger.middleware';
