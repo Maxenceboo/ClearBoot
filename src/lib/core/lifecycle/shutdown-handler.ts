@@ -1,4 +1,5 @@
 import * as http from 'http';
+import { logger } from '../../common/logger';
 
 /**
  * Graceful shutdown handler for clean application termination.
@@ -25,7 +26,7 @@ export class ShutdownHandler {
      */
     static setup(server: http.Server): void {
         const shutdown = async (signal: string) => {
-            console.log(`\n⚠️  ${signal} received. Graceful shutdown...`);
+            logger.minimal(`\n⚠️  ${signal} received. Graceful shutdown...`);
 
             // Execute all cleanup handlers
             ShutdownHandler.cleanupHandlers.forEach(handler => handler());
@@ -33,7 +34,7 @@ export class ShutdownHandler {
 
             // Close HTTP server gracefully
             server.close(() => {
-                console.log("✅ HTTP server closed");
+                logger.minimal("✅ HTTP server closed");
                 process.exit(0);
             });
 

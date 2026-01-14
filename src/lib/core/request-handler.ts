@@ -8,6 +8,10 @@ import { MiddlewareClass } from '../common/interfaces';
 import { extendResponse } from '../http/response';
 import { applyCors, CorsOptions } from '../http/cors';
 import { ParameterInjector, RequestExecutor, MiddlewareDispatcher } from './handlers';
+import { logger } from '../common/logger';
+
+/** Threshold for slow request logging (milliseconds) */
+const SLOW_REQUEST_THRESHOLD = 1000;
 
 /**
  * Core HTTP request handler.
@@ -31,7 +35,33 @@ export class RequestHandler {
         globalMiddlewares: MiddlewareClass[] = [],
         corsOptions?: CorsOptions
     ) {
+        const startTime = Date.now();
         const response = extendResponse(res);
+        
+        // Log request completion
+        response.on('finish', () => {
+            const duration = Date.now() - startTime;
+            const status = response.statusCode;
+            const method = req.method;
+            const url = req.url;
+            
+            // Color code by status
+            let statusColor = '';
+            if (status >= 500) statusColor = '\x1b[31m'; // Red
+            else if (status >= 400) statusColor = '\x1b[33m'; // Yellow
+            else if (status >= 300) statusColor = '\x1b[36m'; // Cyan
+            else if (status >= 200) statusColor = '\x1b[32m'; // Green
+            
+            const logMsg = `${method} ${url} - ${statusColor}${status}\x1b[0m (${duration}ms)`;
+            
+            // Warn on slow requests
+            if (duration > SLOW_REQUEST_THRESHOLD) {
+                logger.info(`⚠️  SLOW REQUEST: ${logMsg}`);
+            } else {
+                logger.info(logMsg);
+            }
+        });
+        
         applyCors(req, response, corsOptions);
 
         // Handle OPTIONS requests for CORS preflight
@@ -79,10 +109,12 @@ export class RequestHandler {
                                 if (schema) {
                                     const result = schema.safeParse(bodyParams);
                                     if (!result.success) {
+                                        const errors = result.error.format();
+                                        logger.info(`🚫 Validation failed on ${method} ${urlPath}: ${JSON.stringify(errors)}`);
                                         response.status(400).json({
                                             status: 400,
                                             error: "Validation Failed",
-                                            details: result.error.format()
+                                            details: errors
                                         });
                                         return;
                                     }
@@ -111,6 +143,8 @@ export class RequestHandler {
                         return;
 
                     } catch (e: any) {
+                        logger.minimal(`❌ Error on ${method} ${urlPath}: ${e.message}`);
+                        if (e.stack) logger.debug(e.stack);
                         RequestExecutor.handleError(e, response);
                         return;
                     }

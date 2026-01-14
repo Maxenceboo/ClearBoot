@@ -3,6 +3,7 @@ export * from './decorators';
 export * from './core/application';
 export * from './common/interfaces';
 export * from './common/types';
+export * from './common/logger';
 export * from './http/response';
 export * from './http/cors';
 export * from './common/exceptions';

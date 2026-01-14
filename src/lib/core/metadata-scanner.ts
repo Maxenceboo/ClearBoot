@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { CONTROLLERS_REGISTRY, ParamType } from '../common/types';
+import { logger } from '../common/logger';
 
 /**
  * Represents a single route definition within a controller.
@@ -55,7 +56,7 @@ export class MetadataScanner {
             routes = routes.sort((a: any, b: any) => a.order - b.order);
 
             // Log controller info
-            console.log(`🎮 \x1b[1m${ControllerClass.name}\x1b[0m`);
+            logger.info(`🎮 \x1b[1m${ControllerClass.name}\x1b[0m`);
 
             // Process each route
             const processedRoutes = routes.map((route: any) => {
@@ -70,11 +71,11 @@ export class MetadataScanner {
                     ? paramsMeta.map((p:any) => `\x1b[90m@${p.type}\x1b[0m`).join(', ')
                     : '\x1b[90m(Auto-Merge)\x1b[0m';
                 const orderLog = route.order > 0 ? `\x1b[35m[Order:${route.order}]\x1b[0m` : '';
-                console.log(`    ├── ${route.method}\t${fullPath} \t${argsLog} ${orderLog}`);
+                logger.debug(`    ├── ${route.method}\t${fullPath} \t${argsLog} ${orderLog}`);
 
                 return { ...route, fullPath, paramsMeta };
             });
-            console.log('');
+            logger.info('');
 
             return { instance, basePath, routes: processedRoutes };
         });

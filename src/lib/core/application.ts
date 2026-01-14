@@ -5,6 +5,7 @@ import { RequestHandler } from './request-handler';
 import { MiddlewareClass, ModuleInitClass } from '../common/interfaces';
 import { CorsOptions } from '../http/cors';
 import { ModuleLoader, ShutdownHandler } from './lifecycle';
+import { logger, LoggerConfig } from '../common/logger';
 
 /**
  * Module configuration for ClearBoot application.
@@ -17,6 +18,8 @@ export interface ModuleConfig {
     globalMiddlewares?: MiddlewareClass[];
     /** CORS configuration */
     cors?: CorsOptions;
+    /** Logger configuration (level: silent | minimal | info | debug) */
+    logger?: LoggerConfig;
     /** Lifecycle hook: executed before server starts.
      * Can be: function, injectable class with init(), or array of both */
     onModuleInit?:
@@ -50,37 +53,44 @@ export class ClearBoot {
         // 1. Load environment variables from .env file
         dotenv.config();
 
-        // 2. Smart port calculation:
+        // 2. Configure logger (auto-detects test env, respects LOG_LEVEL env var)
+        logger.configure(config.logger);
+
+        // 3. Smart port calculation:
         //    - explicit config.port wins
         //    - then process.env.PORT
         //    - default: use 0 in test to avoid port clashes, else 3000
         const port = config.port ?? (process.env.PORT ? parseInt(process.env.PORT) : (process.env.NODE_ENV === 'test' ? 0 : 3000));
 
-        console.log("\n🚀 Starting ClearBoot...\n");
+        logger.minimal("\n🚀 Starting ClearBoot...\n");
 
-        // 3. Register all services (@Injectable) in DI container
+        // 4. Register all services (@Injectable) in DI container
         ModuleLoader.registerServices();
 
-        // 4. Lifecycle Hook - Execute before starting server
+        // 5. Lifecycle Hook - Execute before starting server
         if (config.onModuleInit) {
             await ModuleLoader.executeLifecycleHooks(config.onModuleInit);
         }
 
-        // 5. Scan all controllers (@Controller) and build routing table
+        // 6. Scan all controllers (@Controller) and build routing table
         const controllers = MetadataScanner.scan();
         const globalMiddlewares = config.globalMiddlewares || [];
 
-        // 6. Create HTTP server with request handler
+        // Bootstrap summary
+        const routeCount = controllers.reduce((sum, c) => sum + c.routes.length, 0);
+        logger.info(`🧭 Loaded ${routeCount} routes across ${controllers.length} controllers (log level: ${logger.getLevel()})`);
+
+        // 7. Create HTTP server with request handler
         const server = http.createServer((req, res) => {
             RequestHandler.handle(req, res, controllers, globalMiddlewares, config.cors);
         });
 
-        // 7. Graceful Shutdown Handler (SIGTERM, SIGINT)
+        // 8. Graceful Shutdown Handler (SIGTERM, SIGINT)
         ShutdownHandler.setup(server);
 
-        // 8. Start HTTP server
+        // 9. Start HTTP server
         server.listen(port, () => {
-            if (port > 0) console.log(`🔥 Ready on port ${port}`);
+            if (port > 0) logger.minimal(`🔥 Ready on port ${port}`);
         });
 
         return server;

@@ -1,5 +1,6 @@
 import * as http from 'http';
 import { ClearResponse } from './response';
+import { logger } from '../common/logger';
 
 /**
  * CORS (Cross-Origin Resource Sharing) configuration options.
@@ -61,6 +62,8 @@ export function applyCors(req: http.IncomingMessage, res: ClearResponse, options
         // Whitelist: verify origin in list
         if (options.origin.includes(reqOrigin)) {
             res.setHeader('Access-Control-Allow-Origin', reqOrigin);
+        } else {
+            logger.info(`🌐 CORS blocked origin: ${reqOrigin}`);
         }
     } else {
         // Default: allow all origins

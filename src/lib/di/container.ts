@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { logger } from '../common/logger';
 
 /** Generic class constructor type */
 export type ClassConstructor<T = any> = new (...args: any[]) => T;
@@ -32,8 +33,10 @@ class Container {
         const instance = this.instances.get(token);
 
         if (!instance) {
+            const serviceName = token.name || 'Unknown';
+            logger.minimal(`❌ DI Error: Service '${serviceName}' not found. Did you forget @Injectable() decorator?`);
             throw new Error(
-                `❌ Service '${token.name}' not found. Did you forget @Injectable() decorator?`
+                `❌ Service '${serviceName}' not found. Did you forget @Injectable() decorator?`
             );
         }
 

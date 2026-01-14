@@ -1,6 +1,7 @@
 import { globalContainer, inject } from '../../di/container';
 import { PROVIDERS_REGISTRY } from '../../common/types';
 import { ModuleInitClass } from '../../common/interfaces';
+import { logger } from '../../common/logger';
 
 /**
  * Module loader responsible for initializing dependency injection
@@ -30,7 +31,7 @@ export class ModuleLoader {
             | ModuleInitClass
             | Array<(() => Promise<void> | void) | ModuleInitClass>
     ): Promise<void> {
-        console.log("⏳ Running onModuleInit()...");
+        logger.info("⏳ Running onModuleInit()...");
 
         // Normalize to array
         const items = Array.isArray(hooks) ? hooks : [hooks];
@@ -59,6 +60,6 @@ export class ModuleLoader {
             await (item as any)();
         }
 
-        console.log("✅ onModuleInit() completed\n");
+        logger.info("✅ onModuleInit() completed\n");
     }
 }

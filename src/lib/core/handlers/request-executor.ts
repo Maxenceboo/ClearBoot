@@ -1,6 +1,7 @@
 import * as http from 'http';
 import { ClearResponse } from '../../http/response';
 import { isJson } from '../../http/request-utils';
+import { logger } from '../../common/logger';
 
 /**
  * Handles request execution and response generation.
@@ -59,7 +60,8 @@ export class RequestExecutor {
 
         // Log internal server errors
         if (errorStatus === 500) {
-            console.error("🔥 INTERNAL ERROR:", error);
+            logger.minimal(`🔥 INTERNAL ERROR: ${error.message}`);
+            if (error.stack) logger.debug(error.stack);
         }
 
         // Return standardized error response

@@ -15,6 +15,7 @@ Welcome to the ClearBoot documentation. A lightweight, type-safe TypeScript fram
 - **[HTTP Features](http-features.md)** - Cookies, Form-Data, File Upload
 - **[Validation](validation.md)** - Schema validation with Zod
 - **[Middleware](middlewares.md)** - Cross-cutting concerns, request/response processing
+- **[Logging](logging.md)** - Logging system and configuration
 - **[Dependency Injection](dependency-injection.md)** - Service management (advanced patterns)
 - **[Dependency Injection Advanced](dependency-injection-advanced.md)** - Factory functions, testing patterns
 
@@ -36,6 +37,7 @@ docs/
 ├── http-response.md                      # HTTP decorators
 ├── validation.md                         # Input validation
 ├── middlewares.md                        # Request/response processing
+├── logging.md                            # Logging system
 ├── dependency-injection.md               # Basic DI concepts
 ├── dependency-injection-advanced.md      # Advanced DI patterns
 ├── feature-decorators.md                 # @Validate, @Serialize
