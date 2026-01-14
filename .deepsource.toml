@@ -1,6 +1,6 @@
 version = 1
 
-# Exclusion des dossiers inutiles pour optimiser la vitesse d'analyse
+# 1. Exclusion globale : on ignore les fichiers qui ne doivent pas impacter le score
 exclude-patterns = [
   "node_modules/**",
   "dist/**",
@@ -11,6 +11,7 @@ exclude-patterns = [
   "**/*.d.ts"
 ]
 
+# 2. Analyseur JavaScript / TypeScript (Qualité du code)
 [[analyzers]]
 name = "javascript"
   [analyzers.meta]
@@ -19,11 +20,17 @@ name = "javascript"
     "nodejs"
   ]
 
+# 3. Analyseur de Couverture de Test (Pour voir les lignes manquantes)
+[[analyzers]]
+name = "test-coverage"
+
+# 4. Configuration des processeurs
 [javascript]
 processor = "eslint"
 
 [typescript]
 processor = "eslint"
 
+# 5. Formateur de code automatique
 [[code_formatters]]
 name = "prettier"
