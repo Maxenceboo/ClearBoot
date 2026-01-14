@@ -45,23 +45,16 @@ export class ClearBoot {
      * 
      * @param config - Module configuration
      * @returns HTTP server instance
-     * 
-     * @example
-     * const server = await ClearBoot.create({
-     *   port: 3000,
-     *   globalMiddlewares: [LoggerMiddleware],
-     *   cors: { origin: '*' },
-     *   onModuleInit: async () => {
-     *     await database.connect();
-     *   }
-     * });
      */
     static async create(config: ModuleConfig = {}) {
         // 1. Load environment variables from .env file
         dotenv.config();
 
-        // 2. Smart port calculation: config > env > default 3000
-        const port = config.port ?? (process.env.PORT ? parseInt(process.env.PORT) : 3000);
+        // 2. Smart port calculation:
+        //    - explicit config.port wins
+        //    - then process.env.PORT
+        //    - default: use 0 in test to avoid port clashes, else 3000
+        const port = config.port ?? (process.env.PORT ? parseInt(process.env.PORT) : (process.env.NODE_ENV === 'test' ? 0 : 3000));
 
         console.log("\n🚀 Starting ClearBoot...\n");
 

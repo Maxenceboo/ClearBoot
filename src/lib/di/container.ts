@@ -50,9 +50,6 @@ export const globalContainer = new Container();
  * 
  * @param token - Service class constructor
  * @returns Service instance
- * 
- * @example
- * const userService = inject(UserService);
  */
 export function inject<T>(token: ClassConstructor<T>): T {
     return globalContainer.resolve(token);

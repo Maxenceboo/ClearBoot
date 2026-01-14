@@ -43,10 +43,6 @@ export class MetadataScanner {
      * Instantiates controllers, sorts routes by order, and computes full paths.
      * 
      * @returns Array of controller metadata with route definitions
-     * 
-     * @example
-     * const controllers = MetadataScanner.scan();
-     * // Output: [{ instance: AppController, basePath: '/', routes: [...] }]
      */
     static scan(): ControllerMetadata[] {
         return CONTROLLERS_REGISTRY.map(ControllerClass => {

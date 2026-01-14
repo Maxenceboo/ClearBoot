@@ -8,17 +8,6 @@ import { MiddlewareClass } from '../common/interfaces';
  * 
  * @param middlewares - One or more middleware classes implementing IMiddleware
  * 
- * @example
- * // Apply to entire controller
- * @Controller('/users')
- * @Middleware(AuthMiddleware, LogMiddleware)
- * class UserController { ... }
- * 
- * @example
- * // Apply to specific route
- * @Get('/:id')
- * @Middleware(RateLimitMiddleware)
- * getUser(@Param('id') id: string) { ... }
  */
 export function Middleware(...middlewares: MiddlewareClass[]) {
     return (target: any, propertyKey?: string) => {

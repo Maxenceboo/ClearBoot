@@ -6,14 +6,6 @@ import * as http from 'http';
  * 
  * @param url - Parsed URL object
  * @returns Object with query parameters
- * 
- * @example
- * parseQueryParams(new URL('http://localhost?tag=js&tag=ts'))
- * // { tag: ['js', 'ts'] }
- * 
- * @example
- * parseQueryParams(new URL('http://localhost?name=John'))
- * // { name: 'John' }
  */
 export const parseQueryParams = (url: URL): any => {
     const params: any = {};
@@ -41,14 +33,6 @@ export const parseQueryParams = (url: URL): any => {
  * 
  * @param req - Node.js IncomingMessage
  * @returns Object with cookie name-value pairs
- * 
- * @example
- * // Cookie: session=abc123; user=john
- * parseCookies(req) // { session: 'abc123', user: 'john' }
- * 
- * @example
- * // Cookie header not present
- * parseCookies(req) // {}
  */
 export const parseCookies = (req: http.IncomingMessage): Record<string, string> => {
     const cookieHeader = req.headers.cookie;

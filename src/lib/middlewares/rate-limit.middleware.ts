@@ -12,11 +12,6 @@ import { IMiddleware } from '../common/interfaces';
  * - Max requests: 100 per window
  * 
  * Returns 429 (Too Many Requests) when limit exceeded.
- * 
- * @example
- * const server = await ClearBoot.create({
- *   globalMiddlewares: [RateLimitMiddleware]
- * });
  */
 export class RateLimitMiddleware implements IMiddleware {
     /** In-memory storage of request counts per IP address */

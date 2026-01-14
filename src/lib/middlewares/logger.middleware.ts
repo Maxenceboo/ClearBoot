@@ -4,11 +4,6 @@ import { IMiddleware } from '../common/interfaces';
 /**
  * Logger middleware.
  * Logs all HTTP requests with method, URL, status code, and duration.
- * 
- * @example
- * const server = await ClearBoot.create({
- *   globalMiddlewares: [LoggerMiddleware]
- * });
  */
 export class LoggerMiddleware implements IMiddleware {
     /**

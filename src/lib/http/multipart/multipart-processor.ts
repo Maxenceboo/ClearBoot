@@ -22,11 +22,6 @@ const MAX_TOTAL_SIZE = 50 * 1024 * 1024;
  * @returns Parsed fields and files
  * @throws BadRequestException on parsing errors
  * @throws PayloadTooLargeException if limits exceeded
- * 
- * @example
- * const result = await parseMultipart(req);
- * console.log(result.fields.name); // 'John'
- * console.log(result.files[0].originalName); // 'avatar.jpg'
  */
 export const parseMultipart = (req: http.IncomingMessage): Promise<MultipartResult> => {
     return new Promise((resolve, reject) => {

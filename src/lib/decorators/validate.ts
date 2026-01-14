@@ -8,19 +8,6 @@ import { ParamType } from '../common/types';
  * Returns 400 Bad Request with validation errors on failure.
  * 
  * @param schema - Zod validation schema
- * 
- * @example
- * const CreateUserSchema = z.object({
- *   name: z.string().min(3),
- *   email: z.string().email()
- * });
- * 
- * @Post('/users')
- * @Validate(CreateUserSchema)
- * create(@Body() data: any) {
- *   // data is validated and type-safe here
- *   return { id: 1, ...data };
- * }
  */
 export function Validate(schema: ZodSchema) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {

@@ -11,15 +11,6 @@
  * @property mimeType - MIME type (e.g., 'image/png')
  * @property size - File size in bytes
  * @property buffer - File content as Buffer
- * 
- * @example
- * const file: UploadedFile = {
- *   fieldName: 'avatar',
- *   originalName: 'photo.jpg',
- *   mimeType: 'image/jpeg',
- *   size: 2048,
- *   buffer: Buffer.from(...)
- * }
  */
 export interface UploadedFile {
     fieldName: string;
@@ -34,12 +25,6 @@ export interface UploadedFile {
  * 
  * @property fields - Text fields from the form (supports multiple values as arrays)
  * @property files - Uploaded files array
- * 
- * @example
- * const result: MultipartResult = {
- *   fields: { name: 'John', tags: ['javascript', 'typescript'] },
- *   files: [{ fieldName: 'avatar', ... }]
- * }
  */
 export interface MultipartResult {
     fields: Record<string, string | string[]>;

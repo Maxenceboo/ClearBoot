@@ -10,11 +10,6 @@ import { ClearResponse } from '../http/response';
  * - XSS attacks (X-XSS-Protection)
  * - DNS prefetch leaks
  * - IE8+ direct file opening
- * 
- * @example
- * const server = await ClearBoot.create({
- *   globalMiddlewares: [HelmetMiddleware]
- * });
  */
 export class HelmetMiddleware implements IMiddleware {
     /**

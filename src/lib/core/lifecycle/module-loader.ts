@@ -21,19 +21,8 @@ export class ModuleLoader {
      * - Plain async functions: () => Promise<void>
      * - Injectable classes implementing IModuleInit
      * - Arrays mixing both types
-     * 
-     * @param hooks - Single hook or array of hooks to execute
-     * 
-     * @example
-     * await ModuleLoader.executeLifecycleHooks(async () => {
-     *   await database.connect();
-     * });
-     * 
-     * @example
-     * await ModuleLoader.executeLifecycleHooks([
-     *   DatabaseInit,
-     *   async () => console.log('Ready!')
-     * ]);
+    *
+    * @param hooks - Single hook or array of hooks to execute
      */
     static async executeLifecycleHooks(
         hooks:

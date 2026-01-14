@@ -7,20 +7,6 @@ import { plainToInstance } from 'class-transformer';
  * Excludes all properties by default (excludeExtraneousValues: true).
  * 
  * @param dto - DTO class with @Expose() decorators
- * 
- * @example
- * class UserResponseDto {
- *   @Expose() id: number;
- *   @Expose() name: string;
- *   // password field excluded automatically
- * }
- * 
- * @Get('/users/:id')
- * @Serialize(UserResponseDto)
- * getUser(@Param('id') id: string) {
- *   return { id: 1, name: 'Alice', password: 'secret' };
- *   // Response: { id: 1, name: 'Alice' }
- * }
  */
 export function Serialize(dto: any) {
     return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {

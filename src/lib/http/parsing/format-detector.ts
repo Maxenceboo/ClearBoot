@@ -10,11 +10,6 @@
  * 
  * @param str - String to validate as JSON
  * @returns true if valid JSON, false otherwise
- * 
- * @example
- * isJson('{"name":"John"}') // true
- * isJson('invalid') // false
- * isJson('') // false
  */
 export const isJson = (str: string): boolean => {
     try {

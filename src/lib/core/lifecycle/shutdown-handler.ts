@@ -22,15 +22,6 @@ export class ShutdownHandler {
      * 4. Force exit after timeout if graceful shutdown fails
      * 
      * @param server - HTTP server instance to shutdown
-     * 
-     * @example
-     * const server = http.createServer(...);
-     * ShutdownHandler.setup(server);
-     * 
-     * // Register cleanup tasks
-     * ShutdownHandler.registerCleanup(() => {
-     *   database.disconnect();
-     * });
      */
     static setup(server: http.Server): void {
         const shutdown = async (signal: string) => {
@@ -70,12 +61,6 @@ export class ShutdownHandler {
      * Register a cleanup handler to be executed during shutdown.
      * 
      * @param handler - Cleanup function to execute
-     * 
-     * @example
-     * ShutdownHandler.registerCleanup(() => {
-     *   console.log('Cleaning up resources...');
-     *   database.close();
-     * });
      */
     static registerCleanup(handler: () => void): void {
         ShutdownHandler.cleanupHandlers.push(handler);

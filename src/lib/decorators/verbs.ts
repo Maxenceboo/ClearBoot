@@ -20,9 +20,6 @@ function registerRoute(method: string, path: string, order: number, target: any,
  * Define a GET route handler.
  * @param path - Route path (default: '/')
  * @param order - Priority for overlapping routes (default: 0, higher = higher priority)
- * @example
- * @Get('/users/:id')
- * getUser(@Param('id') id: string) { return { id }; }
  */
 export function Get(path: string = '/', order: number = 0) { return (t: any, k: string) => registerRoute('GET', path, order, t, k); }
 

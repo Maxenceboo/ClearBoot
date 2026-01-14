@@ -43,19 +43,6 @@ export interface CorsOptions {
  * @param req - Incoming HTTP request
  * @param res - HTTP response to add headers to
  * @param options - CORS configuration
- * 
- * @example
- * // Allow all origins
- * applyCors(req, res, { origin: true });
- * 
- * @example
- * // Specific origin with credentials
- * applyCors(req, res, {
- *   origin: 'http://localhost:3000',
- *   credentials: true,
- *   methods: ['GET', 'POST'],
- *   maxAge: 3600
- * });
  */
 export function applyCors(req: http.IncomingMessage, res: ClearResponse, options?: CorsOptions) {
     // Skip CORS processing if no options provided

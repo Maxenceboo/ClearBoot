@@ -17,10 +17,6 @@ const MAX_BODY_SIZE = 1024 * 1024;
  * @returns Parsed JSON object
  * @throws PayloadTooLargeException if body exceeds 1MB
  * @throws BadRequestException if JSON is malformed
- * 
- * @example
- * const data = await parseBody(req);
- * console.log(data.name); // 'John'
  */
 export const parseBody = (req: http.IncomingMessage): Promise<any> => {
     return new Promise((resolve, reject) => {
@@ -73,11 +69,6 @@ export const parseBody = (req: http.IncomingMessage): Promise<any> => {
  * @returns Parsed form data object
  * @throws PayloadTooLargeException if body exceeds 1MB
  * @throws BadRequestException on parsing errors
- * 
- * @example
- * // body: name=John&tags=js&tags=ts
- * const data = await parseFormData(req);
- * console.log(data.tags); // ['js', 'ts']
  */
 export const parseFormData = (req: http.IncomingMessage): Promise<any> => {
     return new Promise((resolve, reject) => {
