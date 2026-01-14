@@ -110,47 +110,63 @@ La documentation complète et détaillée est disponible dans [`docs/`](docs/REA
 
 ## 📄 Licence
 
-Distribué sous la licence MIT.
+Distributed under the MIT License.
 
+---
 
-.
+# 📋 Project Status
 
-.
+## ✅ Completed Phases
 
-.
+### Phase 1: Security & Stability ✅
+- ✅ Safe Body Parser with 1MB size limit
+- ✅ JSON parsing with error handling
+- ✅ Helmet security headers
+- ✅ Rate limiting middleware
+- ✅ CORS support
+- ✅ Request logging
 
-# 📝 Roadmap ClearBoot v2
+### Phase 2: Lifecycle & Database Integration ✅
+- ✅ `onModuleInit()` lifecycle hook
+- ✅ Graceful shutdown (SIGTERM, SIGINT)
+- ✅ ORM integration examples (TypeORM, Prisma, MongoDB)
 
-## ✅ Phase 1 : Sécurité & Stabilité (TERMINÉE)
+### Phase 3: Advanced HTTP Features ✅
+- ✅ Cookie support (@Cookie decorator, res.cookie(), res.clearCookie())
+- ✅ Form-data parsing (application/x-www-form-urlencoded)
+- ✅ File uploads (multipart/form-data with 10MB/file, 50MB total limits)
+- ✅ 82 comprehensive tests (all passing)
 
-*L'objectif est de boucher les trous de sécurité avant d'ajouter des fonctionnalités.*
+### Post-Phase 3: Code Quality ✅
+- ✅ Comprehensive JSDoc documentation for all core modules
+- ✅ Type-safe interfaces and enums
+- ✅ Clear parameter and return value documentation
+- ✅ Practical usage examples in comments
+- ✅ Exception documentation
 
-* [x] **Sécuriser le Body Parser** : Limite de taille (1MB) pour éviter les attaques DoS.
-* [x] **Gestion Safe du JSON** : Le serveur ne crash plus sur du JSON mal formé (try-catch intégré).
-* [x] **Headers de Sécurité** : Middleware Helmet complet (`X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, etc.).
-* [x] **Rate Limiting** : Middleware anti-spam pour limiter les requêtes.
-* [x] **CORS** : Support de la configuration CORS intégrée.
-* [x] **Logger** : Middleware de logging des requêtes.
+## 📖 Documentation
 
-## 🏗️ Phase 2 : Cycle de Vie & Base de Données (TERMINÉE ✅)
+Complete code documentation available in [CODE_DOCUMENTATION.md](CODE_DOCUMENTATION.md)
+- 22/22 source files documented (100%)
+- All functions, classes, and interfaces with JSDoc
+- Examples for all major features
+- See also the full documentation in [docs/](docs/)
 
-*L'objectif est de gérer proprement les connexions externes (DB).*
+## 🧪 Test Results
 
-* [x] **Lifecycle Hooks** : Ajouter une méthode `onModuleInit()` dans `ClearBoot.create()` pour se connecter à la DB *avant* d'écouter le port.
-* [x] **Graceful Shutdown** : Gérer les signaux `SIGTERM` et `SIGINT` (Ctrl+C) pour fermer la connexion DB et le serveur proprement.
-* [x] **Intégration ORM** : Exemples avec **TypeORM**, **Prisma**, et **MongoDB** native driver.
+```
+Test Suites: 20 passed, 20 total
+Tests:       82 passed, 82 total
+Time:        ~8 seconds
+```
 
-## 📦 Phase 3 : Fonctionnalités HTTP Avancées (TERMINÉE ✅)
-
-*L'objectif est de supporter autre chose que du simple JSON.*
-
-* [x] **Support Cookies** : Parser pour lire (`@Cookie()`) et écrire (`res.cookie()`) des cookies (indispensable pour l'auth).
-* [x] **Support Form-Data** : Gérer le format `application/x-www-form-urlencoded` (formulaires HTML classiques).
-* [x] **Upload de Fichiers** : Gérer le format `multipart/form-data` pour permettre l'upload d'images/fichiers.
-
-## 🚀 Phase 4 : Optimisations (Bonus)
-
-*Pour quand le framework sera sous forte charge.*
-
-* [ ] **Optimisation du Routing** : Remplacer la boucle `for` actuelle par une structure en arbre (Radix Tree) ou une Map pour accélérer la recherche de routes.
-* [ ] **Request Scoping** : (Très avancé) Permettre l'injection de services liés à la requête (et non Singleton) pour stocker l'utilisateur connecté sans risque de fuite de données entre utilisateurs.
+All tests verify:
+- Route matching and request handling
+- Parameter injection (@Body, @Param, @Query, @Cookie)
+- Middleware chains and composition
+- Input validation with Zod
+- Cookie and form-data handling
+- File upload with size limits
+- CORS and security headers
+- Error handling and HTTP exceptions
+- Lifecycle hooks and graceful shutdown

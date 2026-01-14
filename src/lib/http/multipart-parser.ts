@@ -1,25 +1,52 @@
 import * as http from 'http';
 import { BadRequestException, PayloadTooLargeException } from '../common/exceptions';
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB par fichier
-const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB au total
+/** Maximum file size: 10MB per file */
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
+/** Maximum total upload size: 50MB */
+const MAX_TOTAL_SIZE = 50 * 1024 * 1024;
+
+/**
+ * Represents an uploaded file from multipart/form-data request
+ */
 export interface UploadedFile {
+    /** Form field name */
     fieldName: string;
+    /** Original filename from client */
     originalName: string;
+    /** MIME type (e.g., 'image/png') */
     mimeType: string;
+    /** File size in bytes */
     size: number;
+    /** File content as Buffer */
     buffer: Buffer;
 }
 
+/**
+ * Result of multipart parsing containing fields and files
+ */
 export interface MultipartResult {
+    /** Text fields from the form */
     fields: Record<string, string | string[]>;
+    /** Uploaded files */
     files: UploadedFile[];
 }
 
 /**
- * Parse multipart/form-data (upload de fichiers)
- * ATTENTION: Parser basique, pour production utiliser multer ou busboy
+ * Parse multipart/form-data request (file uploads).
+ * 
+ * **IMPORTANT**: This is a basic parser for educational purposes.
+ * For production use, prefer battle-tested libraries like `multer` or `busboy`.
+ * 
+ * Security limits:
+ * - 10MB per file
+ * - 50MB total upload size
+ * 
+ * @param req - Node.js IncomingMessage
+ * @returns Parsed fields and files
+ * @throws BadRequestException on parsing errors
+ * @throws PayloadTooLargeException if limits exceeded
  */
 export const parseMultipart = (req: http.IncomingMessage): Promise<MultipartResult> => {
     return new Promise((resolve, reject) => {

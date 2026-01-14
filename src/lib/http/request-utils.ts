@@ -1,9 +1,23 @@
 import * as http from 'http';
 import { BadRequestException, PayloadTooLargeException } from '../common/exceptions';
 
-// Limite de taille par défaut (1MB) - Suffisant pour du JSON standard
+/**
+ * Maximum allowed request body size (1MB)
+ * Prevents DoS attacks via large payloads
+ */
 const MAX_BODY_SIZE = 1024 * 1024;
 
+/**
+ * Parse JSON request body with security protections.
+ * - Enforces 1MB size limit to prevent DoS
+ * - Validates JSON format
+ * - Returns empty object for empty body
+ * 
+ * @param req - Node.js IncomingMessage
+ * @returns Parsed JSON object
+ * @throws PayloadTooLargeException if body exceeds 1MB
+ * @throws BadRequestException if JSON is malformed
+ */
 export const parseBody = (req: http.IncomingMessage): Promise<any> => {
     return new Promise((resolve, reject) => {
         let body = '';
@@ -46,6 +60,17 @@ export const parseBody = (req: http.IncomingMessage): Promise<any> => {
     });
 };
 
+/**
+ * Parse URL query parameters with support for multiple values.
+ * Converts repeated parameters into arrays.
+ * 
+ * @param url - Parsed URL object
+ * @returns Object with query parameters
+ * 
+ * @example
+ * parseQueryParams(new URL('http://localhost?tag=js&tag=ts'))
+ * // { tag: ['js', 'ts'] }
+ */
 export const parseQueryParams = (url: URL): any => {
     const params: any = {};
     url.searchParams.forEach((value, key) => {
@@ -66,7 +91,13 @@ export const parseQueryParams = (url: URL): any => {
     return params;
 };
 
-// Utilitaire pour vérifier si c'est une erreur JSON (utile dans le handler)
+/**
+ * Check if a string contains valid JSON.
+ * Used for error message parsing in request handler.
+ * 
+ * @param str - String to validate
+ * @returns true if valid JSON, false otherwise
+ */
 export const isJson = (str: string) => {
     try {
         JSON.parse(str);
@@ -77,8 +108,15 @@ export const isJson = (str: string) => {
 };
 
 /**
- * Parse les cookies depuis le header 'Cookie'
- * Format: "name1=value1; name2=value2"
+ * Parse cookies from HTTP Cookie header.
+ * Automatically decodes URL-encoded values.
+ * 
+ * @param req - Node.js IncomingMessage
+ * @returns Object with cookie name-value pairs
+ * 
+ * @example
+ * // Cookie: session=abc123; user=john
+ * parseCookies(req) // { session: 'abc123', user: 'john' }
  */
 export const parseCookies = (req: http.IncomingMessage): Record<string, string> => {
     const cookieHeader = req.headers.cookie;
@@ -97,7 +135,18 @@ export const parseCookies = (req: http.IncomingMessage): Record<string, string> 
 };
 
 /**
- * Parse le form-data (application/x-www-form-urlencoded)
+ * Parse application/x-www-form-urlencoded request body.
+ * Supports multiple values for same field name (converted to arrays).
+ * Enforces 1MB size limit.
+ * 
+ * @param req - Node.js IncomingMessage
+ * @returns Parsed form data object
+ * @throws PayloadTooLargeException if body exceeds 1MB
+ * @throws BadRequestException on parsing errors
+ * 
+ * @example
+ * // body: name=John&tags=js&tags=ts
+ * parseFormData(req) // { name: 'John', tags: ['js', 'ts'] }
  */
 export const parseFormData = (req: http.IncomingMessage): Promise<any> => {
     return new Promise((resolve, reject) => {

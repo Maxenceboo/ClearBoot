@@ -1,7 +1,20 @@
+/**
+ * Match a request path against a route definition with parameter extraction.
+ * Supports regex validation for route parameters (e.g., :id(\d+)).
+ * 
+ * @param definedPath - Route pattern defined in controller (e.g., '/users/:id(\d+)')
+ * @param currentPath - Actual request path (e.g., '/users/123')
+ * @returns Object containing extracted parameters, or null if no match
+ * 
+ * @example
+ * matchPath('/users/:id(\d+)', '/users/123') // { id: '123' }
+ * matchPath('/users/:id(\d+)', '/users/abc') // null (regex mismatch)
+ */
 export function matchPath(definedPath: string, currentPath: string): any | null {
     const defSegs = definedPath.split('/').filter(Boolean);
     const curSegs = currentPath.split('/').filter(Boolean);
 
+    // Paths must have same segment count to match
     if (defSegs.length !== curSegs.length) return null;
 
     const params: any = {};

@@ -1,25 +1,49 @@
 import * as http from 'http';
 
+/**
+ * Cookie configuration options for security and behavior control
+ */
 export interface CookieOptions {
-    maxAge?: number;      // Durée en millisecondes
-    expires?: Date;       // Date d'expiration
-    httpOnly?: boolean;   // Accessible uniquement via HTTP (pas JavaScript)
-    secure?: boolean;     // Seulement HTTPS
+    /** Duration in milliseconds (e.g., 3600000 for 1 hour) */
+    maxAge?: number;
+    /** Absolute expiration date */
+    expires?: Date;
+    /** If true, cookie not accessible via JavaScript (XSS protection) */
+    httpOnly?: boolean;
+    /** If true, cookie only sent over HTTPS */
+    secure?: boolean;
+    /** CSRF protection: 'Strict' | 'Lax' | 'None' */
     sameSite?: 'Strict' | 'Lax' | 'None';
-    path?: string;        // Chemin du cookie
-    domain?: string;      // Domaine du cookie
+    /** Cookie path (default: '/') */
+    path?: string;
+    /** Cookie domain */
+    domain?: string;
 }
 
-// L'interface qui étend celle de base de Node.js
+/**
+ * Extended HTTP response with convenient helper methods.
+ * Extends Node.js ServerResponse with Express-like API.
+ */
 export interface ClearResponse extends http.ServerResponse {
-    status(code: number): this; // 'this' permet de chainer .status().json()
+    /** Set HTTP status code (chainable) */
+    status(code: number): this;
+    /** Send JSON response */
     json(data: any): void;
+    /** Send plain text response */
     send(data: string): void;
+    /** Set a cookie (chainable) */
     cookie(name: string, value: string, options?: CookieOptions): this;
+    /** Clear a cookie (chainable) */
     clearCookie(name: string, options?: CookieOptions): this;
 }
 
-// La fonction magique qui transforme le 'res' basique
+/**
+ * Extend Node.js ServerResponse with ClearBoot helper methods.
+ * Adds .status(), .json(), .send(), .cookie(), .clearCookie()
+ * 
+ * @param res - Standard Node.js ServerResponse
+ * @returns Extended response with helper methods
+ */
 export function extendResponse(res: http.ServerResponse): ClearResponse {
     const extended = res as ClearResponse;
 

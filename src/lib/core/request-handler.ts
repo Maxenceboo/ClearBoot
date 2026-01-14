@@ -10,7 +10,23 @@ import { extendResponse } from '../http/response';
 import { HttpException } from '../common/exceptions';
 import { applyCors, CorsOptions } from '../http/cors';
 
+/**
+ * Core HTTP request handler.
+ * Routes requests to controllers, executes middlewares, handles validation,
+ * injects parameters, and manages error responses.
+ */
 export class RequestHandler {
+    /**
+     * Handle incoming HTTP request.
+     * Matches route, executes middleware chain, validates input, injects parameters,
+     * and calls controller handler.
+     * 
+     * @param req - Incoming HTTP request
+     * @param res - HTTP server response
+     * @param controllers - All registered controller metadata
+     * @param globalMiddlewares - Global middleware classes
+     * @param corsOptions - CORS configuration
+     */
     static async handle(
         req: http.IncomingMessage,
         res: http.ServerResponse,
@@ -46,7 +62,8 @@ export class RequestHandler {
                             let bodyParams = {};
                             let files: MultipartResult['files'] = [];
 
-                            // Parse body selon le Content-Type
+                            // Parse body based on Content-Type header
+                            // Supports: multipart/form-data (file upload), application/x-www-form-urlencoded, application/json
                             if (['POST', 'PUT', 'PATCH'].includes(method || '')) {
                                 const contentType = req.headers['content-type'] || '';
                                 
@@ -61,30 +78,33 @@ export class RequestHandler {
                                 }
                             }
 
-                            // Attacher les fichiers à req pour y accéder via @Req()
+                            // Attach uploaded files to request for access via @Req()
                             (req as any).files = files;
 
-                            // --- 🛡️ LOGIQUE DE VALIDATION (Lien avec ton décorateur dans features) ---
+                            // 🛡️ Input Validation using Zod schema (from @UseValidation decorator)
                             const schema = Reflect.getMetadata('validation_schema', ctrl.instance, route.handlerName);
                             if (schema) {
                                 const result = schema.safeParse(bodyParams);
                                 if (!result.success) {
-                                    // On utilise le format d'erreur de ton décorateur pour la cohérence
+                                    // Return validation errors in consistent format
                                     return response.status(400).json({
                                         status: 400,
                                         error: "Validation Failed",
                                         details: result.error.format()
                                     });
                                 }
-                                bodyParams = result.data; // On injecte les données castées par Zod
+                                // Use validated and type-casted data
+                                bodyParams = result.data;
                             }
 
-                            // Injection des paramètres (@Body, @Param, etc.)
+                            // Parameter injection based on decorators (@Body, @Param, @Query, etc.)
                             let args: any[] = [];
                             if (route.paramsMeta.length > 0) {
+                                // Build arguments array from decorator metadata
                                 args = new Array(route.paramsMeta.length);
                                 route.paramsMeta.forEach((p: any) => {
                                     let val: any = null;
+                                    // Resolve value based on parameter type
                                     if (p.type === ParamType.REQ) val = req;
                                     else if (p.type === ParamType.RES) val = response;
                                     else if (p.type === ParamType.BODY) val = bodyParams;
@@ -92,10 +112,12 @@ export class RequestHandler {
                                     else if (p.type === ParamType.PARAM) val = routeParams;
                                     else if (p.type === ParamType.COOKIE) val = cookies;
 
+                                    // Extract specific property if key provided (e.g., @Param('id'))
                                     if (p.key && val && typeof val === 'object') args[p.index] = val[p.key];
                                     else args[p.index] = val;
                                 });
                             } else {
+                                // Auto-merge: if no decorators, merge all params into single object
                                 args = [{ ...queryParams, ...bodyParams, ...routeParams }];
                             }
 
@@ -113,21 +135,26 @@ export class RequestHandler {
                             else response.status(statusCode).send(String(result));
                         };
 
-                        // C. Dispatcher des Middlewares
+                        // Middleware dispatch chain (Koa-style composition)
+                        // Executes: Global -> Controller -> Route middlewares, then handler
                         let index = -1;
                         const dispatch = async (i: number) => {
+                            // Prevent calling same middleware twice
                             if (i <= index) return;
                             index = i;
 
+                            // All middlewares executed, call final handler
                             if (i === allMiddlewares.length) {
                                 await executeHandler();
                                 return;
                             }
 
+                            // Resolve and execute current middleware
                             const MiddlewareClass = allMiddlewares[i];
                             const instance = globalContainer.resolve(MiddlewareClass) as IMiddleware;
 
                             try {
+                                // Call middleware with next() function to continue chain
                                 await instance.use(req, response, () => dispatch(i + 1));
                             } catch (err) {
                                 throw err;
@@ -138,13 +165,15 @@ export class RequestHandler {
                         return;
 
                     } catch (e: any) {
+                        // Error handling: HTTP exceptions, validation errors, and internal errors
                         if (!response.writableEnded) {
-                            // Gestion des erreurs HTTP et Validation
                             const status = e.status || 500;
                             const message = isJson(e.message) ? JSON.parse(e.message) : { error: e.message };
 
+                            // Log internal server errors
                             if (status === 500) console.error("🔥 INTERNAL ERROR:", e);
 
+                            // Return standardized error response
                             response.status(status).json({
                                 statusCode: status,
                                 ...(typeof message === 'object' ? message : { message }),

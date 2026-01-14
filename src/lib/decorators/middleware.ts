@@ -1,15 +1,33 @@
 import 'reflect-metadata';
 import { MiddlewareClass } from '../common/interfaces';
 
-// On force le type MiddlewareClass ici 👇
+/**
+ * Attach middleware(s) to controller or specific route.
+ * Applied only to decorated controller or route, not globally.
+ * Executed before route handler, after global middlewares.
+ * 
+ * @param middlewares - One or more middleware classes implementing IMiddleware
+ * 
+ * @example
+ * // Apply to entire controller
+ * @Controller('/users')
+ * @Middleware(AuthMiddleware, LogMiddleware)
+ * class UserController { ... }
+ * 
+ * @example
+ * // Apply to specific route
+ * @Get('/:id')
+ * @Middleware(RateLimitMiddleware)
+ * getUser(@Param('id') id: string) { ... }
+ */
 export function Middleware(...middlewares: MiddlewareClass[]) {
     return (target: any, propertyKey?: string) => {
         if (propertyKey) {
-            // Route
+            // Route-level middleware (propertyKey = method name)
             const existing = Reflect.getMetadata('route_middlewares', target, propertyKey) || [];
             Reflect.defineMetadata('route_middlewares', [...existing, ...middlewares], target, propertyKey);
         } else {
-            // Controller
+            // Controller-level middleware
             const existing = Reflect.getMetadata('ctrl_middlewares', target) || [];
             Reflect.defineMetadata('ctrl_middlewares', [...existing, ...middlewares], target);
         }

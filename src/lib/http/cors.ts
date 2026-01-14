@@ -1,50 +1,99 @@
 import * as http from 'http';
 import { ClearResponse } from './response';
 
+/**
+ * CORS (Cross-Origin Resource Sharing) configuration options.
+ */
 export interface CorsOptions {
-    origin?: string | string[] | boolean; // 'http://site.com', ['http://a.com', 'http://b.com'], ou true (reflect)
-    methods?: string[]; // ['GET', 'POST']
-    allowedHeaders?: string[]; // ['Content-Type', 'Authorization']
-    credentials?: boolean; // true pour accepter les cookies
-    maxAge?: number; // Cache du preflight en secondes
+    /**
+     * Allowed origin(s).
+     * - string: Single origin ('http://localhost:3000')
+     * - string[]: Whitelist of origins
+     * - true: Reflect requesting origin (accept all, use with credentials)
+     * - false/undefined: No CORS (default: '*')
+     */
+    origin?: string | string[] | boolean;
+    
+    /**
+     * Allowed HTTP methods (default: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'])
+     */
+    methods?: string[];
+    
+    /**
+     * Allowed request headers (default: ['Content-Type', 'Authorization', 'X-Requested-With'])
+     */
+    allowedHeaders?: string[];
+    
+    /**
+     * Allow credentials (cookies, auth) in cross-origin requests (default: false)
+     * Must use specific origin (not '*') when true
+     */
+    credentials?: boolean;
+    
+    /**
+     * Browser cache duration for preflight responses in seconds (default: no cache header)
+     */
+    maxAge?: number;
 }
 
+/**
+ * Apply CORS headers to HTTP response.
+ * Handles preflight requests and sets appropriate Access-Control-* headers.
+ * 
+ * @param req - Incoming HTTP request
+ * @param res - HTTP response to add headers to
+ * @param options - CORS configuration
+ * 
+ * @example
+ * // Allow all origins
+ * applyCors(req, res, { origin: true });
+ * 
+ * @example
+ * // Specific origin with credentials
+ * applyCors(req, res, {
+ *   origin: 'http://localhost:3000',
+ *   credentials: true,
+ *   methods: ['GET', 'POST'],
+ *   maxAge: 3600
+ * });
+ */
 export function applyCors(req: http.IncomingMessage, res: ClearResponse, options?: CorsOptions) {
-    if (!options) return; // Si pas de config, on ne fait rien (ou on laisse le défaut)
+    // Skip CORS processing if no options provided
+    if (!options) return;
 
     const reqOrigin = req.headers.origin;
 
-    // 1. GESTION DE L'ORIGINE (Qui a le droit ?)
+    // 1. Handle allowed origin(s)
     if (options.origin === true && reqOrigin) {
-        // Mode miroir : on accepte tout le monde mais on renvoie l'origine exacte (requis pour credentials)
+        // Reflect mode: accept all origins, echo requesting origin (required for credentials)
         res.setHeader('Access-Control-Allow-Origin', reqOrigin);
     } else if (typeof options.origin === 'string') {
-        // Une seule origine autorisée
+        // Single origin allowed
         res.setHeader('Access-Control-Allow-Origin', options.origin);
     } else if (Array.isArray(options.origin) && reqOrigin) {
-        // Liste blanche : on vérifie si l'origine est dedans
+        // Whitelist: verify origin in list
         if (options.origin.includes(reqOrigin)) {
             res.setHeader('Access-Control-Allow-Origin', reqOrigin);
         }
     } else {
-        // Par défaut : Tout le monde
+        // Default: allow all origins
         res.setHeader('Access-Control-Allow-Origin', '*');
     }
 
-    // 2. CREDENTIALS (Cookies / Auth)
+    // 2. Allow credentials (cookies, Authorization header)
     if (options.credentials) {
         res.setHeader('Access-Control-Allow-Credentials', 'true');
     }
 
-    // 3. METHODES AUTORISÉES
+    // 3. Allowed HTTP methods
     const methods = options.methods || ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'];
     res.setHeader('Access-Control-Allow-Methods', methods.join(', '));
 
-    // 4. HEADERS AUTORISÉS
+    // 4. Allowed request headers
     const headers = options.allowedHeaders || ['Content-Type', 'Authorization', 'X-Requested-With'];
     res.setHeader('Access-Control-Allow-Headers', headers.join(', '));
 
-    // 5. CACHE (Pour éviter de refaire OPTIONS à chaque fois)
+    // 5. Cache preflight response (to avoid OPTIONS on every request)
     if (options.maxAge) {
         res.setHeader('Access-Control-Max-Age', options.maxAge.toString());
     }
