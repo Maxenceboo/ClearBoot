@@ -22,10 +22,6 @@ ClearBoot utilise GitHub Actions pour l'intégration et le déploiement continus
 - Compile TypeScript
 - Sauvegarde les artefacts (`dist/`)
 
-#### SonarCloud Analysis
-- Analyse la qualité du code
-- Vérifie les bugs, vulnérabilités, code smells
-- Mesure la couverture
 
 ---
 
@@ -53,17 +49,6 @@ Ajouter `NPM_TOKEN` dans GitHub Secrets (Settings → Secrets → Actions)
 
 ---
 
-### 3. **SonarCloud** (`sonarcloud.yml`)
-
-**Déclenché sur:**
-- Push sur `main` ou `dev`
-- Pull requests
-
-**Actions:**
-- Analyse qualité du code
-- Rapports de couverture
-- Quality Gate
-
 ---
 
 ## 🔐 Secrets requis
@@ -73,7 +58,6 @@ Ajoutez ces secrets dans **Settings → Secrets and variables → Actions**:
 | Secret | Description | Obtention |
 |--------|-------------|-----------|
 | `NPM_TOKEN` | Token npm pour publication | https://www.npmjs.com/settings/~/tokens |
-| `SONAR_TOKEN` | Token SonarCloud | https://sonarcloud.io/account/security |
 | `GITHUB_TOKEN` | Auto-fourni par GitHub | Automatique |
 
 ---
@@ -82,7 +66,6 @@ Ajoutez ces secrets dans **Settings → Secrets and variables → Actions**:
 
 ```markdown
 ![CI/CD](https://github.com/Maxenceboo/clearboot/workflows/CI%2FCD%20Pipeline/badge.svg)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Maxenceboo_clearboot&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Maxenceboo_clearboot)
 [![Coverage](https://codecov.io/gh/Maxenceboo/clearboot/branch/main/graph/badge.svg)](https://codecov.io/gh/Maxenceboo/clearboot)
 [![npm version](https://badge.fury.io/js/clearboot.svg)](https://www.npmjs.com/package/clearboot)
 ```
@@ -134,8 +117,7 @@ npm run build
 # Avec couverture
 npm run test:cov
 
-# Analyse SonarCloud (local)
-npm run sonar
+ 
 ```
 
 ---
@@ -145,7 +127,6 @@ npm run sonar
 - ✅ **Tests**: 125 tests (100% passing)
 - ✅ **Coverage**: 100%
 - ✅ **Build**: TypeScript compilation
-- ✅ **Quality Gate**: SonarCloud
 - ✅ **Security**: Dependabot alerts
 - ✅ **Node versions**: 18.x, 20.x, 22.x
 
@@ -214,11 +195,6 @@ git push origin main  # → Publication automatique sur npm
 - Vérifier que `NPM_TOKEN` est configuré
 - Vérifier les droits du token (Publish packages)
 - Version déjà publiée? Bumper la version
-
-### SonarCloud ne se déclenche pas
-- Vérifier que `SONAR_TOKEN` est configuré
-- Vérifier que le projet existe sur sonarcloud.io
-- Fork? Les secrets ne sont pas partagés
 
 ---
 
