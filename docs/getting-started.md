@@ -12,6 +12,8 @@ A lightweight, type-safe TypeScript framework for building REST APIs with zero e
 npm install clearboot
 ```
 
+> **Note:** All dependencies (`reflect-metadata`, `zod`, `class-transformer`, `dotenv`) are automatically included. No additional packages required!
+
 ### Your First Server
 
 ```typescript

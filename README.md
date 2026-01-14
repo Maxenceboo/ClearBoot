@@ -29,8 +29,10 @@ ClearBoot brings structure and robustness to your Node.js applications without t
 ## 📦 Installation
 
 ```bash
-npm install clearboot reflect-metadata zod
+npm install clearboot
 ```
+
+> All dependencies (`reflect-metadata`, `zod`, `class-transformer`, `dotenv`) are automatically included—no manual installation needed!
 
 ---
 
