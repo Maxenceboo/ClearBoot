@@ -3,3 +3,4 @@ export * from './verbs';
 export * from './params';
 export * from './features';
 export * from './middleware';
+export * from './swagger';

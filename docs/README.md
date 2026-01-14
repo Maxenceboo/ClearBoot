@@ -16,6 +16,7 @@ Complete documentation for ClearBoot - a lightweight, type-safe TypeScript frame
 - **[Validation](validation.md)** - Schema validation with Zod
 - **[Middleware](middlewares.md)** - Request/response processing pipeline
 - **[Logging](logging.md)** - Structured logging with configurable levels
+- **[Swagger/OpenAPI](swagger.md)** - Auto-generated API documentation
 - **[Dependency Injection](dependency-injection.md)** - Basic DI concepts
 - **[DI Advanced](dependency-injection-advanced.md)** - Advanced patterns and testing
 

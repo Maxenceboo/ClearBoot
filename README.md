@@ -123,6 +123,7 @@ curl http://localhost:3000/users/1
 - ✅ [**Validation**](docs/feature-decorators.md) - Type-safe validation with Zod
 - 💉 [**Dependency Injection**](docs/dependency-injection-advanced.md) - Service patterns
 - 🔧 [**Middleware**](docs/middlewares.md) - Request/response processing
+- 📚 [**Swagger/OpenAPI**](docs/swagger.md) - Auto-generated API documentation
 
 ### Advanced Topics
 - 📊 [**Logging**](docs/logging.md) - Structured logging system
@@ -158,6 +159,12 @@ curl http://localhost:3000/users/1
 - ✅ Type-safe validation with Zod (`@Validate` decorator)
 - ✅ Automatic response serialization (`@Serialize`)
 - ✅ Class-transformer integration
+
+### Documentation & API Discovery
+- ✅ **AUTO-GENERATED Swagger/OpenAPI docs** with `@ApiOperation`, `@ApiResponse`, `@ApiParam`
+- ✅ **Interactive Swagger UI** at `/api/docs`
+- ✅ Automatic schema inference from Zod validators
+- ✅ Type-safe API exploration
 
 ### Architecture
 - ✅ Dependency injection container
