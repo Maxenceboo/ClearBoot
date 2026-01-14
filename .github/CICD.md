@@ -9,6 +9,7 @@ Simple CI/CD with GitHub Actions: test, build, and publish.
 Triggered on push to `main`/`dev`/`feature/**` and pull requests.
 
 **Jobs:**
+
 - **Tests**: Node 18.x, 20.x, 22.x matrix; runs `npm test` and coverage
 - **Build**: Compiles TypeScript; saves `dist/` artifact
 
@@ -17,6 +18,7 @@ Triggered on push to `main`/`dev`/`feature/**` and pull requests.
 Triggered on push to `main` when `package.json` version changes (or manual trigger).
 
 **Actions:**
+
 - Detects version change
 - Verifies version not already on npm
 - Runs tests and build
@@ -34,8 +36,8 @@ Config: [.deepsource.yaml](.deepsource.yaml)
 
 Set in **Settings → Secrets and variables → Actions**:
 
-| Secret | Source |
-|--------|--------|
+| Secret      | Source                                  |
+| ----------- | --------------------------------------- |
 | `NPM_TOKEN` | https://www.npmjs.com/settings/~/tokens |
 
 ### Deepsource
@@ -48,14 +50,14 @@ Set in **Settings → Secrets and variables → Actions**:
 
 Set in **Settings → Secrets and variables → Actions**:
 
-| Secret | Source |
-|--------|--------|
+| Secret      | Source                                  |
+| ----------- | --------------------------------------- |
 | `NPM_TOKEN` | https://www.npmjs.com/settings/~/tokens |
-
 
 ## Publish
 
 1. Bump version in `package.json`:
+
    ```bash
    npm version patch
    ```

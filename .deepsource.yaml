@@ -19,7 +19,7 @@ exclude_patterns:
   - node_modules/**
   - dist/**
   - coverage/**
-  - '**/*.test.ts'
+  - "**/*.test.ts"
   - test/**
   - docs/**
-  - '**/*.d.ts'
+  - "**/*.d.ts"
