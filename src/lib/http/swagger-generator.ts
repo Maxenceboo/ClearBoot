@@ -17,7 +17,7 @@ export class SwaggerGenerator {
             const instance = new controller();
             const controllerPath = Reflect.getMetadata('controller:path', controller) || '';
             const controllerTags = Reflect.getMetadata('swagger:tags', controller) || [];
-            
+
             // Add controller tags
             controllerTags.forEach((t: string) => tags.add(t));
 

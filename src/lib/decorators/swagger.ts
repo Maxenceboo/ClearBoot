@@ -133,7 +133,7 @@ export function ApiDeprecated() {
  * ```
  */
 export function ApiTags(...tags: string[]) {
-    return function(target: any, propertyKey?: string) {
+    return function (target: any, propertyKey?: string) {
         if (propertyKey) {
             // Method decorator
             Reflect.defineMetadata('swagger:tags', tags, target, propertyKey);
