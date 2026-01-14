@@ -81,12 +81,12 @@ jobs:
           path: dist/
           retention-days: 7
   
-  # Job 3: SonarCloud Analysis
+  # Job 3: SonarCloud Analysis (only on main/dev)
   sonarcloud:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
     needs: test
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')) || (github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'dev'))
     
     steps:
       - uses: actions/checkout@v3
