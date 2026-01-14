@@ -1,0 +1,19 @@
+version = 1
+
+python-targets = ["3.8"]
+
+[javascript]
+processor = "eslint"
+
+[typescript]
+processor = "eslint"
+
+exclude-patterns = [
+  "node_modules/**",
+  "dist/**",
+  "coverage/**",
+  "**/*.test.ts",
+  "test/**",
+  "docs/**",
+  "**/*.d.ts"
+]
