@@ -23,6 +23,8 @@ name = "javascript"
 # 3. Analyseur de Couverture de Test (Pour voir les lignes manquantes)
 [[analyzers]]
 name = "test-coverage"
+  [analyzers.meta]
+  coverage-threshold = 80
 
 # 4. Configuration des processeurs
 [javascript]
