@@ -1,6 +1,6 @@
 {
   "name": "clearboot",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Atomic, TypeScript-first, Dependency Injection based Web Framework for Node.js",
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
