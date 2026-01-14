@@ -1,13 +1,6 @@
 version = 1
 
-python-targets = ["3.8"]
-
-[javascript]
-processor = "eslint"
-
-[typescript]
-processor = "eslint"
-
+# Exclusion des dossiers inutiles pour optimiser la vitesse d'analyse
 exclude-patterns = [
   "node_modules/**",
   "dist/**",
@@ -17,3 +10,20 @@ exclude-patterns = [
   "docs/**",
   "**/*.d.ts"
 ]
+
+[[analyzers]]
+name = "javascript"
+  [analyzers.meta]
+  environment = [
+    "jest",
+    "nodejs"
+  ]
+
+[javascript]
+processor = "eslint"
+
+[typescript]
+processor = "eslint"
+
+[[code_formatters]]
+name = "prettier"
