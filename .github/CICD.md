@@ -23,6 +23,27 @@ Triggered on push to `main` when `package.json` version changes (or manual trigg
 - Publishes to npm (if new version)
 - Creates git tag
 
+### Deepsource
+
+Code quality analysis runs automatically on PR/push via [Deepsource](https://deepsource.io).
+Config: [.deepsource.yaml](.deepsource.yaml)
+
+## Setup
+
+### NPM Token
+
+Set in **Settings → Secrets and variables → Actions**:
+
+| Secret | Source |
+|--------|--------|
+| `NPM_TOKEN` | https://www.npmjs.com/settings/~/tokens |
+
+### Deepsource
+
+1. Go to https://deepsource.io and sign up with GitHub
+2. Activate repository: `Maxenceboo/ClearBoot`
+3. No additional config needed — Deepsource auto-analyzes PRs/pushes
+
 ## Secrets
 
 Set in **Settings → Secrets and variables → Actions**:
