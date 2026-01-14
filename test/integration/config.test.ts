@@ -1,5 +1,13 @@
 import * as http from 'http';
-import { ClearBoot } from '../../src/lib/index';
+import { ClearBoot, Controller, Get } from '../../src/lib/index';
+
+@Controller('/dummy')
+class DummyController {
+    @Get('/')
+    index() {
+        return { ok: true };
+    }
+}
 
 describe('INTEGRATION - Configuration & Env', () => {
     let server: http.Server;

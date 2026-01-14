@@ -75,7 +75,10 @@ export class UserController {
 ```typescript
 import { ClearBoot } from '../lib';
 
-ClearBoot.create({ port: 3000 });
+ClearBoot.create({ 
+  port: 3000,
+  logger: { level: 'info' }  // silent | minimal | info | debug
+});
 
 ```
 
@@ -91,7 +94,8 @@ La documentation complète et détaillée est disponible dans [`docs/`](docs/REA
 - 📝 **[HTTP Responses](docs/http-response.md)** - Status codes, headers, serialization
 - � **[HTTP Features](docs/http-features.md)** - Cookies, Form-Data, File Upload
 - �🎯 **[Feature Decorators](docs/feature-decorators.md)** - @Validate, @Serialize
-- 💉 **[Dependency Injection](docs/dependency-injection-advanced.md)** - Services et patterns
+- � **[Logging](docs/logging.md)** - Log levels, HTTP requests, errors, configuration
+- �💉 **[Dependency Injection](docs/dependency-injection-advanced.md)** - Services et patterns
 - 🏗️ **[Architectural Patterns](docs/patterns.md)** - MVC, Service Layer, Repository Pattern
 - 🔄 **[Lifecycle & Database](docs/lifecycle.md)** - onModuleInit, Graceful Shutdown, ORM Integration
 - 🧪 **[Testing Guide](docs/testing.md)** - Unit & Integration tests

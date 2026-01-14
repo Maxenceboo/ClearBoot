@@ -44,8 +44,14 @@ export class MetadataScanner {
      * Instantiates controllers, sorts routes by order, and computes full paths.
      * 
      * @returns Array of controller metadata with route definitions
+     * @throws Error if no controllers are registered
      */
     static scan(): ControllerMetadata[] {
+        if (CONTROLLERS_REGISTRY.length === 0) {
+            logger.minimal('❌ No controllers found. Did you forget @Controller() decorator?');
+            throw new Error('No controllers registered. Add @Controller() to at least one class.');
+        }
+
         return CONTROLLERS_REGISTRY.map(ControllerClass => {
             // Instantiate controller
             const instance = new ControllerClass();
@@ -62,13 +68,13 @@ export class MetadataScanner {
             const processedRoutes = routes.map((route: any) => {
                 // Compute full path: basePath + route.path (normalized)
                 const fullPath = (basePath + route.path).replace('//', '/').replace(/\/$/, '') || '/';
-                
+
                 // Get parameter injection metadata
                 const paramsMeta = Reflect.getMetadata('route_params', instance, route.handlerName) || [];
 
                 // Log route with decorators and order
                 const argsLog = paramsMeta.length > 0
-                    ? paramsMeta.map((p:any) => `\x1b[90m@${p.type}\x1b[0m`).join(', ')
+                    ? paramsMeta.map((p: any) => `\x1b[90m@${p.type}\x1b[0m`).join(', ')
                     : '\x1b[90m(Auto-Merge)\x1b[0m';
                 const orderLog = route.order > 0 ? `\x1b[35m[Order:${route.order}]\x1b[0m` : '';
                 logger.debug(`    ├── ${route.method}\t${fullPath} \t${argsLog} ${orderLog}`);

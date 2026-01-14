@@ -1,5 +1,14 @@
 import { ClearBoot } from '../../src/lib/core/application';
+import { Controller, Get } from '../../src/lib';
 import * as http from 'http';
+
+@Controller('/dummy')
+class DummyController {
+    @Get('/')
+    index() {
+        return { ok: true };
+    }
+}
 
 describe('Lifecycle Hooks', () => {
     let server: http.Server;

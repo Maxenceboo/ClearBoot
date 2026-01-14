@@ -1,9 +1,17 @@
-import { ClearBoot, Injectable, IModuleInit } from '../../src/lib';
+import { ClearBoot, Injectable, IModuleInit, Controller, Get } from '../../src/lib';
+
+@Controller('/dummy')
+class DummyController {
+    @Get('/')
+    index() {
+        return { ok: true };
+    }
+}
 
 describe('onModuleInit contract', () => {
     it('throws if a class without init() is provided', async () => {
         @Injectable()
-        class BadInitService {}
+        class BadInitService { }
 
         await expect(
             ClearBoot.create({ onModuleInit: BadInitService as any, port: 0 })
