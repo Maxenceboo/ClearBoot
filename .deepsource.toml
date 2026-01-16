@@ -1,0 +1,27 @@
+version = 1
+
+exclude-patterns = [
+  "node_modules/**",
+  "dist/**",
+  "coverage/**",
+  "**/*.test.ts",
+  "test/**",
+  "docs/**",
+  "**/*.d.ts"
+]
+
+[[analyzers]]
+name = "javascript"
+  [analyzers.meta]
+  environment = ["jest", "nodejs"]
+
+[[analyzers]]
+name = "test-coverage"
+  [analyzers.meta]
+  coverage-threshold = 80
+
+[javascript]
+processor = "eslint"
+
+[typescript]
+processor = "eslint"
