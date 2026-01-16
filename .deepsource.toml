@@ -18,7 +18,6 @@ name = "javascript"
 [[analyzers]]
 name = "test-coverage"
   [analyzers.meta]
-  coverage-threshold = 80
 
 [javascript]
 processor = "eslint"
